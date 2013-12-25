@@ -1,0 +1,4 @@
+Starting program at timer: 506849
+506849: (DEBUG): MainProject: Debug flag set to: _CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF). 
+506849: (DEBUG): MainProject: vld.h included.
+506849: Initiating Engine with width: 1024 and height: 768

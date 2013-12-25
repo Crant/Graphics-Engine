@@ -1,0 +1,2 @@
+Starting program at timer: 325494
+325494: Initing Engine with width: 1024 and height: 768

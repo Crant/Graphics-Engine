@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Graphics Engine", "Graphics Engine\Graphics Engine.vcxproj", "{2F520E40-44A2-4627-B3B4-625F8450FFEF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MainProject", "MainProject\MainProject.vcxproj", "{46150C0E-D5A6-4DDB-B948-B9DA7D8BF346}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2F520E40-44A2-4627-B3B4-625F8450FFEF} = {2F520E40-44A2-4627-B3B4-625F8450FFEF}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2F520E40-44A2-4627-B3B4-625F8450FFEF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2F520E40-44A2-4627-B3B4-625F8450FFEF}.Debug|Win32.Build.0 = Debug|Win32
+		{2F520E40-44A2-4627-B3B4-625F8450FFEF}.Release|Win32.ActiveCfg = Release|Win32
+		{2F520E40-44A2-4627-B3B4-625F8450FFEF}.Release|Win32.Build.0 = Release|Win32
+		{46150C0E-D5A6-4DDB-B948-B9DA7D8BF346}.Debug|Win32.ActiveCfg = Debug|Win32
+		{46150C0E-D5A6-4DDB-B948-B9DA7D8BF346}.Debug|Win32.Build.0 = Debug|Win32
+		{46150C0E-D5A6-4DDB-B948-B9DA7D8BF346}.Release|Win32.ActiveCfg = Release|Win32
+		{46150C0E-D5A6-4DDB-B948-B9DA7D8BF346}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

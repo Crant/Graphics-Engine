@@ -1,0 +1,57 @@
+Performance report, times in milliseconds, IE 100 in the file = 0.1 seconds.
+
+Settings: 
+Resolution: 1024 x 768
+Field of View: 90
+FarClip: 200
+MaxFPS: 0
+
+
+           Tier 1: 
+Renderer - Entire Frame: 
+Max: 256     Avg: 1.96891     Tot:32800, Measures: 16659
+
+
+           Tier 2: 
+Renderer - Life Overhead: 
+Max: 224     Avg: 0.0633854     Tot:1056, Measures: 16660
+
+Renderer - Render Scene: 
+Max: 96     Avg: 1.63083     Tot:27168, Measures: 16659
+
+
+           Tier 3: 
+Renderer - Render Deferred Geo: 
+Max: 64     Avg: 0.0979592     Tot:1632, Measures: 16660
+
+Renderer - Render Deferred Geo Terrain: 
+Max: 64     Avg: 0.0691477     Tot:1152, Measures: 16660
+
+Renderer - Render Deferred SkyBox: 
+Max: 64     Avg: 0.0902761     Tot:1504, Measures: 16660
+
+Renderer - Generating Shadows: 
+Max: 96     Avg: 0.6012     Tot:10016, Measures: 16660
+
+Renderer - Render Lights: 
+Max: 64     Avg: 0.121008     Tot:2016, Measures: 16660
+
+Renderer - Render Combined Image: 
+Max: 64     Avg: 0.0845189     Tot:1408, Measures: 16659
+
+Renderer - Render Image: 
+Max: 64     Avg: 0.0576265     Tot:960, Measures: 16659
+
+Renderer - Render Text: 
+Max: 64     Avg: 0.049943     Tot:832, Measures: 16659
+
+Renderer - Render RenderTargets: 
+Max: 64     Avg: 0.328471     Tot:5472, Measures: 16659
+
+
+           Tier 4: 
+
+           Tier 5: 
+
+           Tier 6: 
+

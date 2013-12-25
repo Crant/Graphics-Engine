@@ -1,0 +1,26 @@
+﻿  Shader.cpp
+Source\Shader.cpp(59): warning C4189: 'pData' : local variable is initialized but not referenced
+Source\Shader.cpp(60): warning C4189: 'size' : local variable is initialized but not referenced
+     Creating library E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\\Build\Release\Graphics Engine.lib and object E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\\Build\Release\Graphics Engine.exp
+  Generating code
+e:\documents\visual studio 2012\projects\projekt\graphics engine\graphics engine\source\shader.cpp(91): warning C4715: 'Shader::Init' : not all control paths return a value
+  Finished generating code
+Effects11.lib(EffectAPI.obj) : warning LNK4099: PDB 'vc110.pdb' was not found with 'Effects11.lib(EffectAPI.obj)' or at 'E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\Build\Release\vc110.pdb'; linking object as if no debug info
+Effects11.lib(EffectNonRuntime.obj) : warning LNK4099: PDB 'vc110.pdb' was not found with 'Effects11.lib(EffectNonRuntime.obj)' or at 'E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\Build\Release\vc110.pdb'; linking object as if no debug info
+Effects11.lib(EffectLoad.obj) : warning LNK4099: PDB 'vc110.pdb' was not found with 'Effects11.lib(EffectLoad.obj)' or at 'E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\Build\Release\vc110.pdb'; linking object as if no debug info
+Effects11.lib(d3dxGlobal.obj) : warning LNK4099: PDB 'vc110.pdb' was not found with 'Effects11.lib(d3dxGlobal.obj)' or at 'E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\Build\Release\vc110.pdb'; linking object as if no debug info
+Effects11.lib(EffectReflection.obj) : warning LNK4099: PDB 'vc110.pdb' was not found with 'Effects11.lib(EffectReflection.obj)' or at 'E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\Build\Release\vc110.pdb'; linking object as if no debug info
+Effects11.lib(EffectRuntime.obj) : warning LNK4099: PDB 'vc110.pdb' was not found with 'Effects11.lib(EffectRuntime.obj)' or at 'E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\Build\Release\vc110.pdb'; linking object as if no debug info
+  Graphics Engine.vcxproj -> E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\\Build\Release\Graphics Engine.dll
+  E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\\Graphics Engine\Include\GraphicsEngine.h
+  E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\\Graphics Engine\Include\iCamera.h
+  E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\\Graphics Engine\Include\iGraphicsEngineParams.h
+  E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\\Graphics Engine\Include\iKeyListener.h
+  E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\\Graphics Engine\Include\iMesh.h
+  E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\\Graphics Engine\Include\Matrix.h
+  E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\\Graphics Engine\Include\Vector.h
+          7 file(s) copied.
+  E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\\Build\Release\Graphics Engine.dll
+          1 file(s) copied.
+  E:\Documents\Visual Studio 2012\Projects\Projekt\Graphics Engine\\Build\Release\Graphics Engine.lib
+          1 file(s) copied.
