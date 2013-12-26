@@ -45,7 +45,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	//iPointLight* pLight1 = gEng->CreatePointLight(Vector3(-3.0f, 3.0f, 0.0f), 7.0f, 1.0f, true);
 	//pLight1->SetColor(Vector3(255.0f, 255.0f, 0.0f));
 
-	iPointLight* pLight2 = gEng->CreatePointLight(Vector3(-1.0f, 3.0f, 0.0f), 7.0f, 1.0f, true);
+	iPointLight* pLight2 = gEng->CreatePointLight(Vector3(1.4f, 1.0f, 0.0f), 1.0f, 1.0f, true);
 	pLight2->SetColor(Vector3(0.0f, 255.0f, 255.0f));
 
 	gEng->GetCamera()->SetPosition(Vector3(0, 5, 0));
@@ -57,7 +57,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	gEng->LoadingScreen("media/loadingScreen/loadingscreenbg.png", "media/loadingscreen/loadingscreenpb.png", 0.0f, 0.2f, 0.2f, 0.2f);
 
 	float deltaTime = 0.0f;
-	bool increase = false;
+	bool increase = true;
 
 	while (gEng->IsRunning())
 	{

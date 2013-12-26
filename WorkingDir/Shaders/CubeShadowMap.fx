@@ -31,18 +31,20 @@ struct GS_IN_CUBE
 {
 	float4 Position : SV_Position;
 };
-cbuffer cbPerPass
-{
-	float3 gLightPos;
-};
 cbuffer cbPerMesh
 {
     matrix mWorld;
 	matrix mProj;
+
+	float3 gLightPos;
 };
+cbuffer cbPerView
+{
+	matrix mView;
+}
 cbuffer cbGeoPerMesh
 {
-	matrix mView[6];
+	matrix mLightView[6];
 }
 
 GS_IN_CUBE VSCubeGenerateVSM( VS_IN_CUBE input )
@@ -69,7 +71,7 @@ void GSCubeGenerateVSM(triangle GS_IN_CUBE input[3], inout TriangleStream<PS_IN_
 	 	[unroll]
         for( int v = 0; v < 3; v++ )
         {
-			float4 eyePos = mul(input[v].Position, mView[f]);
+			float4 eyePos = mul(input[v].Position, mLightView[f]);
             output.Position = mul(eyePos, mProj);
 			output.Depth = length(gLightPos.xyz - input[v].Position.xyz);
 			
@@ -98,56 +100,46 @@ technique10 Technique1
 }
 
 
-//struct VSIN
-//{
-//    float3 pos : POSITION;
-//};
-//
-//struct PSIN
-//{
-//    float4 pos : SV_Position;
-//    float gDepth : TEXCOORD;
-//};
-//cbuffer cbPerPass
-//{
-//	float3 gLightPos;
-//};
-//cbuffer cbPerMesh
-//{
-//    matrix mWorld;
-//	matrix mView;
-//	matrix mProj;
-//};
-//
-//PSIN VSGenerateVSM( VSIN input )
-//{
-//    PSIN output = (PSIN)0;
-//    
-//    float4 worldPos = mul(float4(input.pos, 1.0f), mWorld);
-//    
-//	float4 eyePos = mul(worldPos, mView);
-//	output.pos = mul(eyePos, mProj);
-//	float3 lightVector = worldPos.xyz - gLightPos;
-//    output.gDepth = length(lightVector);
-//
-//    return output;
-//}
-//float4 PSGenerateVSM( PSIN input ) : SV_Target
-//{
-//	float depth = input.gDepth;
-//	return float4(depth, 1, 1, 1);
-//}
-//
-//technique10 Technique1
-//{
-//    pass p0
-//    {
-//        SetVertexShader( CompileShader( vs_4_0, VSGenerateVSM() ) );
-//        SetGeometryShader( NULL );
-//        SetPixelShader( CompileShader( ps_4_0, PSGenerateVSM() ) );
-//        
-//        SetRasterizerState( backCulling );
-//        SetBlendState( BlendDisabled, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xffffffff );
-//        SetDepthStencilState( zWriteStencil, 0xffffffff );
-//    }
-//}
+struct VSIN
+{
+    float3 pos : POSITION;
+};
+
+struct PSIN
+{
+    float4 pos : SV_Position;
+    float gDepth : TEXCOORD;
+};
+
+PSIN VSGenerateVSM( VSIN input )
+{
+    PSIN output = (PSIN)0;
+    
+    float4 worldPos = mul(float4(input.pos, 1.0f), mWorld);
+    
+	float4 eyePos = mul(worldPos, mView);
+	output.pos = mul(eyePos, mProj);
+	float3 lightVector = worldPos.xyz - gLightPos;
+    output.gDepth = length(lightVector);
+
+    return output;
+}
+float4 PSGenerateVSM( PSIN input ) : SV_Target
+{
+	float depth = input.gDepth;
+	return float4(depth, 1, 1, 1);
+}
+
+technique10 Technique2
+{
+    pass p0
+    {
+        SetVertexShader( CompileShader( vs_4_0, VSGenerateVSM() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSGenerateVSM() ) );
+        
+        SetRasterizerState( backCulling );
+        SetBlendState( BlendDisabled, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xffffffff );
+        SetDepthStencilState( zWriteStencil, 0xffffffff );
+    }
+}

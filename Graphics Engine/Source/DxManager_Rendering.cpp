@@ -58,7 +58,10 @@ void DxManager::Render()
 	this->zPerf.PreMeasure("Renderer - Generating Shadows", 2);
 #endif
 
-	this->CreateShadowMaps();
+	if(false)
+		this->CreateShadowMapsSinglePass();
+	else
+		this->CreateShadowMapsMultiPass();
 
 #ifdef PERFORMANCE_TEST
 	this->zPerf.PostMeasure("Renderer - Generating Shadows", 2);
@@ -270,16 +273,19 @@ void DxManager::RenderTerrain()
 	}
 }
 
-void DxManager::CreateShadowMaps()
+void DxManager::CreateShadowMapsMultiPass()
 {
+	this->zShader_CubeShadowMap->SetTechnique(1);
 	for(auto it_pointLights = this->zPointLights.begin(); it_pointLights != this->zPointLights.end(); it_pointLights++)
 	{
 		PointLight* pLight = (*it_pointLights);
 		if(pLight->IsShadowsEnabled())
 		{
-				ID3D11RenderTargetView* currentRenderTarget = pLight->GetRTV();
+			for(int i = 0; i < 6; i++)
+			{
+				ID3D11RenderTargetView* currentRenderTarget = pLight->GetRTVArray(i);
 				ID3D11RenderTargetView* renderTargets[1] = {currentRenderTarget};
-				this->Dx_DeviceContext->OMSetRenderTargets(1, renderTargets, pLight->GetDSV());
+				this->Dx_DeviceContext->OMSetRenderTargets(1, renderTargets, pLight->GetDSVArray());
 
 				if(currentRenderTarget)
 				{
@@ -287,15 +293,11 @@ void DxManager::CreateShadowMaps()
 					float clearcolor[4] = { zMax, 1.0f, 1.0f, 1.0f };
 					this->Dx_DeviceContext->ClearRenderTargetView(currentRenderTarget, clearcolor);
 				}
-				this->Dx_DeviceContext->ClearDepthStencilView(pLight->GetDSV(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+				this->Dx_DeviceContext->ClearDepthStencilView(pLight->GetDSVArray(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-				D3DXMATRIX views[6];
-				for (int n = 0; n < 6; n++)
-				{
-					views[n] = pLight->GetViewMatrix(n);
-				}
+				D3DXMATRIX view = pLight->GetViewMatrix(i);
 
-				this->zShader_CubeShadowMap->SetMatrix("mView", views);
+				this->zShader_CubeShadowMap->SetMatrix("mView", view);
 				this->zShader_CubeShadowMap->SetMatrix("mProj", pLight->GetProjMatrix());
 				this->zShader_CubeShadowMap->SetFloat3("gLightPos", pLight->GetPositionD3D());
 
@@ -359,13 +361,111 @@ void DxManager::CreateShadowMaps()
 
 					this->Dx_DeviceContext->DrawIndexed(numElements, 0, 0);
 				}
+			}
+			if(pLight->GetSRV())
+			{
+				this->Dx_DeviceContext->GenerateMips(pLight->GetSRV());
+			}
+		}	
+	}
+}
 
-				if(pLight->GetSRV())
+void DxManager::CreateShadowMapsSinglePass()
+{
+	this->zShader_CubeShadowMap->SetTechnique(0);
+	for(auto it_pointLights = this->zPointLights.begin(); it_pointLights != this->zPointLights.end(); it_pointLights++)
+	{
+		PointLight* pLight = (*it_pointLights);
+		if(pLight->IsShadowsEnabled())
+		{
+			ID3D11RenderTargetView* currentRenderTarget = pLight->GetRTV();
+			ID3D11RenderTargetView* renderTargets[1] = {currentRenderTarget};
+			this->Dx_DeviceContext->OMSetRenderTargets(1, renderTargets, pLight->GetDSV());
+
+			if(currentRenderTarget)
+			{
+				float zMax = 1.e4f;
+				float clearcolor[4] = { zMax, 1.0f, 1.0f, 1.0f };
+				this->Dx_DeviceContext->ClearRenderTargetView(currentRenderTarget, clearcolor);
+			}
+			this->Dx_DeviceContext->ClearDepthStencilView(pLight->GetDSV(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+			D3DXMATRIX views[6];
+			for (int n = 0; n < 6; n++)
+			{
+				views[n] = pLight->GetViewMatrix(n);
+			}
+
+			this->zShader_CubeShadowMap->SetMatrix("mLightView", views);
+			this->zShader_CubeShadowMap->SetMatrix("mProj", pLight->GetProjMatrix());
+			this->zShader_CubeShadowMap->SetFloat3("gLightPos", pLight->GetPositionD3D());
+
+			for(auto it_mesh = this->zObjects.begin(); it_mesh != this->zObjects.end(); it_mesh++)
+			{
+				StaticMesh* staticMesh = (*it_mesh);
+
+				this->zShader_CubeShadowMap->SetMatrix("mWorld", staticMesh->GetWorldMatrix());
+
+				std::vector<MeshStrip*> strips = staticMesh->GetStrips();
+
+				for (auto it_strip = strips.begin(); it_strip != strips.end(); it_strip++)
 				{
-					this->Dx_DeviceContext->GenerateMips(pLight->GetSRV());
+					bool indexBuffer = false;
+					MeshStrip* strip = (*it_strip);
+
+					Object3D* object = strip->GetRenderObject();
+
+					BufferResource* indResource = object->GetIndexBuffer();
+					BufferResource* vertResource = object->GetVertexBuffer();
+					if (indResource)
+					{
+						indexBuffer = true;
+						indResource->GetBufferPointer()->Apply();
+					}
+					if(vertResource)
+					{
+						vertResource->GetBufferPointer()->Apply();
+					}
+
+					this->zShader_CubeShadowMap->Apply(0);
+
+					if (indexBuffer)
+					{
+						this->Dx_DeviceContext->DrawIndexed(strip->GetNrOfIndicies(), 0, 0);
+					}
+					else
+					{
+						this->Dx_DeviceContext->Draw(strip->GetNrOfVerts(), 0);
+					}
 				}
 			}
-		//}
+
+			for (auto it_Terrains = this->zTerrains.begin(); it_Terrains != this->zTerrains.cend(); it_Terrains++)
+			{
+				Terrain* terrain = (*it_Terrains);
+
+				this->Dx_DeviceContext->IASetPrimitiveTopology(terrain->GetTopology());
+
+				this->zShader_CubeShadowMap->SetMatrix("mWorld", terrain->GetWorldMatrix());
+
+				Buffer* indBuffer = terrain->GetIndexBufferPtr()->GetBufferPointer();
+				Buffer* vertBuffer = terrain->GetVertexBufferPtr()->GetBufferPointer();
+
+				vertBuffer->Apply();
+				indBuffer->Apply();
+
+				this->zShader_CubeShadowMap->Apply(0);
+
+				UINT32 numElements = indBuffer->GetElementCount();
+
+				this->Dx_DeviceContext->DrawIndexed(numElements, 0, 0);
+			}
+
+			if(pLight->GetSRV())
+			{
+				this->Dx_DeviceContext->GenerateMips(pLight->GetSRV());
+			}
+		}	
 	}
 }
 
@@ -416,21 +516,41 @@ void DxManager::RenderLights()
 		indBuffer->Apply();
 
 		//Check if inside Sphere
-		float camToCenter = D3DXVec3Length(&(camPos - lightPos));
+		//float camToCenter = D3DXVec3Length(&(camPos - lightPos));
 
-		if(camToCenter <= light->GetRadius())
-		{
-			this->zShader_PointLight->SetTechnique(0);
-		}
-		else
-		{
-			this->zShader_PointLight->SetTechnique(1);
-		}
+		//if(camToCenter <= light->GetRadius())
+		//{
+		//	//this->zShader_PointLight->SetTechnique(0);
+		//}
+		//else
+		//{
+		//	//this->zShader_PointLight->SetTechnique(1);
+		//}
 
+#ifdef PERFORMANCE_TEST
+		this->zPerf.PreMeasure("Renderer - Render Lights Pass 1", 3);
+#endif
 		this->zShader_PointLight->Apply(0);
 
 		this->Dx_DeviceContext->DrawIndexed(indBuffer->GetElementCount(), 0, 0);
+
+#ifdef PERFORMANCE_TEST
+		this->zPerf.PostMeasure("Renderer - Render Lights Pass 1", 3);
+#endif
+
+#ifdef PERFORMANCE_TEST
+		this->zPerf.PreMeasure("Renderer - Render Lights Pass 2", 3);
+#endif
+		this->zShader_PointLight->Apply(1);
+
+		this->Dx_DeviceContext->DrawIndexed(indBuffer->GetElementCount(), 0, 0);
+
+#ifdef PERFORMANCE_TEST
+		this->zPerf.PostMeasure("Renderer - Render Lights Pass 2", 3);
+#endif
 	}
+
+	this->zShader_PointLight->SetResource("cShadowCubeMap", NULL);
 }
 
 void DxManager::RenderFinalImage()

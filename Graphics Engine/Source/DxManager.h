@@ -129,7 +129,8 @@ private:
 	/*! Render Lights.*/
 	void RenderLights();
 	/*! Create ShadowMaps.*/
-	void CreateShadowMaps();
+	void CreateShadowMapsMultiPass();
+	void CreateShadowMapsSinglePass();
 	/*! Render RenderTargets.*/
 	void DebugRenderTargets();
 

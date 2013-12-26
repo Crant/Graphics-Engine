@@ -22,36 +22,36 @@ BlendState AdditiveBlending
     RenderTargetWriteMask[0] = 0x0F;
 };
 
-DepthStencilState zWriteStencilDS
+BlendState ColorWriteDisable
 {
-    DepthEnable = false;
-    DepthFunc = GREATER_EQUAL;
-    DepthWriteMask = All;
-    StencilEnable = true;
+	BlendEnable[0] = FALSE;
+	SrcBlend = ZERO;
+    DestBlend = ZERO;
+	RenderTargetWriteMask[0] = 0x0F;
 };
 
-DepthStencilState zNoWriteStencilEnable //BackFaceCulling
+DepthStencilState NoColorWriteDepthStencil
 {
-    DepthEnable = FALSE;
-    DepthFunc = GREATER_EQUAL;
-	DepthWriteMask = Zero;
-    StencilEnable = TRUE;
-	FrontFaceStencilFail = KEEP;
+    DepthEnable = true;
+    DepthFunc = LESS;
+    DepthWriteMask = All;
+    StencilEnable = true;
+	FrontFaceStencilFail = REPLACE;
 	FrontFaceStencilDepthFail = KEEP;
-	FrontFaceStencilPass = REPLACE;
+	FrontFaceStencilPass = KEEP;
 	FrontFaceStencilFunc = ALWAYS;
-	BackFaceStencilFail = KEEP;
+	BackFaceStencilFail = REPLACE;
 	BackFaceStencilDepthFail = KEEP;
-	BackFaceStencilPass = REPLACE;
+	BackFaceStencilPass = KEEP;
 	BackFaceStencilFunc = ALWAYS;
 };
 
-DepthStencilState zWriteNoStencilEnable //FrontFaceCulling
+DepthStencilState ColorWriteDepthStencil
 {
-    DepthEnable = TRUE;
-    DepthFunc = LESS;
-	DepthWriteMask = Zero;
-    StencilEnable = FALSE;
+    DepthEnable = true;
+    DepthFunc = ALWAYS;
+    DepthWriteMask = All;
+    StencilEnable = true;
 	FrontFaceStencilFail = KEEP;
 	FrontFaceStencilDepthFail = KEEP;
 	FrontFaceStencilPass = KEEP;
@@ -60,6 +60,14 @@ DepthStencilState zWriteNoStencilEnable //FrontFaceCulling
 	BackFaceStencilDepthFail = KEEP;
 	BackFaceStencilPass = KEEP;
 	BackFaceStencilFunc = EQUAL;
+};
+
+DepthStencilState zWriteStencilDS
+{
+    DepthEnable = false;
+    DepthFunc = GREATER_EQUAL;
+    DepthWriteMask = All;
+    StencilEnable = true;
 };
 
 RasterizerState backCulling
@@ -246,12 +254,31 @@ float4 PSScene(PSSceneIn input) : SV_Target
 	
 	return ShadowFactor * Phong(worldPosition.xyz, normal, specularIntensity, specularPower);
 }
+
+float4 Empty_PSScene(PSSceneIn input) : SV_Target
+{
+	return float4(0,0,0,0);
+}
+
 //-----------------------------------------------------------------------------------------
 // Technique: RenderTextured  
 //-----------------------------------------------------------------------------------------
 technique11 Technique1
 {  
 	pass p0
+	{
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, Empty_PSScene() ) );
+		
+		SetRasterizerState(frontCulling);
+		SetDepthStencilState( NoColorWriteDepthStencil, 0 );
+	    //SetDepthStencilState( zWriteNoStencilEnable, 0 );
+		SetBlendState(ColorWriteDisable, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+	}
+
+	pass p1
     {
 		// Set VS, GS, and PS
         SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
@@ -259,7 +286,7 @@ technique11 Technique1
         SetPixelShader( CompileShader( ps_4_0, PSScene() ) );
 		
 		SetRasterizerState(frontCulling);
-		SetDepthStencilState( zWriteStencilDS, 0 );
+		SetDepthStencilState( ColorWriteDepthStencil, 0 );
 	    //SetDepthStencilState( zWriteNoStencilEnable, 0 );
 		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
     }
