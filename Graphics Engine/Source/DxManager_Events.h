@@ -129,17 +129,16 @@ public:
 	Text* GetText() { this->deleteSelf = false; return this->txt; }
 };
 
-class LightEvent : public RendererEvent
+class PointLightEvent : public RendererEvent
 {
 private:
 	PointLight* pLight;
-
 public:
-	LightEvent(bool adding, PointLight* light) : RendererEvent(adding)
+	PointLightEvent(bool adding, PointLight* light) : RendererEvent(adding)
 	{
 		this->pLight = light;
 	}
-	virtual ~LightEvent()
+	virtual ~PointLightEvent()
 	{
 		if(this->deleteSelf && this->Adding)
 		{
@@ -148,4 +147,24 @@ public:
 		}
 	}
 	PointLight* GetLight() { this->deleteSelf = false; return this->pLight; }
+};
+
+class SpotLightEvent : public RendererEvent
+{
+private:
+	SpotLight* pLight;
+public:
+	SpotLightEvent(bool adding, SpotLight* light) : RendererEvent(adding)
+	{
+		this->pLight = light;
+	}
+	virtual ~SpotLightEvent()
+	{
+		if(this->deleteSelf && this->Adding)
+		{
+			if(this->pLight)
+				delete this->pLight;
+		}
+	}
+	SpotLight* GetLight() { this->deleteSelf = false; return this->pLight; }
 };

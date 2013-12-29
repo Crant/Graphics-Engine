@@ -80,7 +80,7 @@ void DxManager::HandleImageEvent( ImageEvent* iev )
 	}
 }
 
-void DxManager::HandlePointLightEvent( LightEvent* lev )
+void DxManager::HandlePointLightEvent( PointLightEvent* lev )
 {
 	if(lev->IsAdding())
 		this->zPointLights.push_back(lev->GetLight());
@@ -93,6 +93,27 @@ void DxManager::HandlePointLightEvent( LightEvent* lev )
 			if (img == temp)
 			{
 				this->zPointLights.erase(it_Light);
+				delete temp;
+				temp = NULL;
+				return;
+			}
+		}
+	}
+}
+
+void DxManager::HandleSpotLightEvent( SpotLightEvent* lev )
+{
+	if(lev->IsAdding())
+		this->zSpotLights.push_back(lev->GetLight());
+	else
+	{
+		SpotLight* img = lev->GetLight();
+		for(auto it_Light = this->zSpotLights.begin(); it_Light != this->zSpotLights.end(); it_Light++)
+		{
+			SpotLight* temp = (*it_Light);
+			if (img == temp)
+			{
+				this->zSpotLights.erase(it_Light);
 				delete temp;
 				temp = NULL;
 				return;

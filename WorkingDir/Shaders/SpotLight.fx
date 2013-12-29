@@ -1,13 +1,12 @@
+//--------------------------------------------------------------------------------------
+// Particle.fx
+// Direct3D 10 Shader Model 4.0 Line Drawing Demo
+// Copyright (c) Stefan Petersson, 2008
+//--------------------------------------------------------------------------------------
+
 //-----------------------------------------------------------------------------------------
 // Input and Output Structures
 //-----------------------------------------------------------------------------------------
-
-//texture data
-Texture2D tColorMap;
-Texture2D tNormalMap;
-Texture2D tDepthMap;
-
-TextureCube cShadowCubeMap;
 
 BlendState AdditiveBlending
 {
@@ -30,46 +29,6 @@ BlendState ColorWriteDisable
 	RenderTargetWriteMask[0] = 0x0F;
 };
 
-DepthStencilState NoColorWriteDepthStencil
-{
-    DepthEnable = true;
-    DepthFunc = LESS;
-    DepthWriteMask = All;
-    StencilEnable = true;
-	FrontFaceStencilFail = REPLACE;
-	FrontFaceStencilDepthFail = KEEP;
-	FrontFaceStencilPass = KEEP;
-	FrontFaceStencilFunc = ALWAYS;
-	BackFaceStencilFail = REPLACE;
-	BackFaceStencilDepthFail = KEEP;
-	BackFaceStencilPass = KEEP;
-	BackFaceStencilFunc = ALWAYS;
-};
-
-DepthStencilState ColorWriteDepthStencil
-{
-    DepthEnable = true;
-    DepthFunc = ALWAYS;
-    DepthWriteMask = All;
-    StencilEnable = true;
-	FrontFaceStencilFail = KEEP;
-	FrontFaceStencilDepthFail = KEEP;
-	FrontFaceStencilPass = KEEP;
-	FrontFaceStencilFunc = EQUAL;
-	BackFaceStencilFail = KEEP;
-	BackFaceStencilDepthFail = KEEP;
-	BackFaceStencilPass = KEEP;
-	BackFaceStencilFunc = EQUAL;
-};
-
-DepthStencilState zWriteStencilDS
-{
-    DepthEnable = false;
-    DepthFunc = GREATER_EQUAL;
-    DepthWriteMask = All;
-    StencilEnable = true;
-};
-
 RasterizerState frontCulling
 {
     CullMode = Front;
@@ -90,18 +49,57 @@ SamplerState PointClampSampler
     AddressV = Clamp;
 };
 
+//texture data
+Texture2D tColorMap;
+Texture2D tNormalMap;
+Texture2D tDepthMap;
+
+Texture2D tShadowMap;
+Texture2D tCookie;
 struct VSSceneIn
 {
-	float3 Position	: POSITION;
+	float3 Pos	: POSITION;
 };
 
 struct PSSceneIn
 {
-	float4 Position  : SV_Position;		// SV_Position is a (S)ystem (V)ariable that denotes transformed position
-	float4 ScreenPosition : TEXCOORD;
+	float4 Pos  : SV_Position;		// SV_Position is a (S)ystem (V)ariable that denotes transformed position
+	float4 ScreenPosition : TEXCOORD1;
+};
+//-----------------------------------------------------------------------------------------
+// Constant Buffers (where we store variables by frequency of update)
+//-----------------------------------------------------------------------------------------
+cbuffer cbEveryFrame
+{
+	matrix mWorld;
+	matrix mView;
+	matrix mProj;
+	//inverse View Projection
+	matrix mIVP;
+	matrix mLightViewProjection;
+
+	float gLightAngle;
+	float gLightHeight;
+	float gLightIntensity;
+	float3 gLightPos;
+	float3 gLightDir;
+	float3 gLightColor;
+	float3 gCameraPos;
+	bool castShadow = false;
+	float SMAP_SIZE = 2048;
+};
+cbuffer cbRarely
+{
+	float2 halfPixel;
 };
 
-float VSM_FILTER(TextureCube img, float3 tex, float fragDepth)
+//Normal Decoding Function
+float3 decode(float4 enc)
+{
+	return (2.0f * enc.xyz - 1.0f);
+}
+
+float VSM_FILTER(Texture2D img, float2 tex, float fragDepth)
 {
     float lit = 0.0f;
 
@@ -113,83 +111,17 @@ float VSM_FILTER(TextureCube img, float3 tex, float fragDepth)
 }
 
 //-----------------------------------------------------------------------------------------
-// Constant Buffers (where we store variables by frequency of update)
-//-----------------------------------------------------------------------------------------
-cbuffer cbEveryLight
-{
-	matrix mWorld;
-	
-	float3 gLightPos;
-	
-	float3 gColor;
-	
-	float gLightRadius;
-	float gLightIntensity = 1.0f;
-	
-	bool castShadows = false;
-};
-
-cbuffer cbPerFrame
-{
-	float2 HalfPixel;
-	float3 gCameraPos;
-	matrix mView;
-	matrix mProj;
-	//inverse View Projection
-	matrix mIVP;
-};
-
-float4 Phong(float3 Position, float3 normal,
-				float specularIntensity, float specularPower)
-{
-	//surface to light vector
-	float3 lightVector = gLightPos.xyz - Position.xyz;
-
-	//compute attenuation base on distance - linear attenuation
-	float attenuation = (1.0f - length(lightVector) / gLightRadius);
-	//float attenuation = saturate(1.0f - dot(lightVector / gLightRadius, lightVector / gLightRadius));
-	
-	//normalize light vector
-	lightVector = normalize(lightVector);
-
-	//compute diffuse light
-	float NdL = max(0, dot(normal, lightVector));
-	float3 diffuseLight = NdL * gColor.rgb;
-
-	//reflection vector
-	float3 reflectionVector = normalize(reflect(-lightVector, normal));
-
-	//camera to surface vector
-	float3 directionToCamera = normalize(gCameraPos - Position);
-
-	//compute specular light
-	float specularLight = specularIntensity * pow(saturate(dot(reflectionVector, directionToCamera)), specularPower);
-	
-	//output the two lights
-	float4 finalColor = attenuation * gLightIntensity * float4(diffuseLight.rgb, specularLight);
-	
-	return finalColor;
-}
-
-//Normal Decoding Function
-float3 decode(float4 enc)
-{
-	return (2.0f * enc.xyz - 1.0f);
-}
-//-----------------------------------------------------------------------------------------
 // VertexShader: VSScene
 //-----------------------------------------------------------------------------------------
 PSSceneIn VSScene(VSSceneIn input)
 {
 	PSSceneIn output = (PSSceneIn)0;
-	
-	float4 worldPos = mul(float4(input.Position, 1.0f), mWorld);
+	float4 worldPos = mul(float4(input.Pos, 1.0f), mWorld);
 	float4 viewPos = mul(worldPos, mView);
-
-	output.Position = mul(viewPos, mProj);
+	output.Pos = mul(viewPos, mProj);
 
 	//Align texture coordinates
-	output.ScreenPosition = output.Position;
+	output.ScreenPosition = output.Pos;
 
 	return output;
 }
@@ -197,8 +129,46 @@ PSSceneIn VSScene(VSSceneIn input)
 //-----------------------------------------------------------------------------------------
 // PixelShader: PSSceneMain
 //-----------------------------------------------------------------------------------------
+float4 Phong(float3 Position, float3 Normal, float radialAttenuation,
+				float SpecularIntensity, float SpecularPower)
+{
+	float3 LightVector = gLightPos - Position;
+
+	//Calculate Attenuation
+	float heightAttenuation = 1.0f - saturate(length(LightVector) - (gLightHeight/2));
+
+	//heightAttenuation = saturate(1.0f - length(LightVector)/(gLightHeight/2));
+	float Attenuation = min(radialAttenuation, heightAttenuation);
+
+	LightVector = normalize(LightVector);
+	
+	float SdL = dot(LightVector, gLightDir);
+
+	float4 finalColor = 0;
+	if(SdL <= gLightAngle)
+	{
+		//Calculate Reflection Vector
+		float3 reflectionVector = normalize(reflect(-LightVector, Normal));
+
+		//Calculate Eye vector
+		float3 directionToCamera = normalize(gCameraPos - Position);
+
+		//Calculate Normal dot LightVector
+		float NdL = max(0, dot(Normal, LightVector));
+
+		//Calculate Diffuse color
+		float3 diffuseLight = NdL * gLightColor.rgb;
+		
+		//compute specular light
+		float specularLight = SpecularIntensity * pow(saturate(dot(reflectionVector, directionToCamera)), SpecularPower);
+	
+		finalColor = Attenuation * gLightIntensity * float4(diffuseLight.rgb, specularLight);
+	}
+	return finalColor;
+}
 float4 PSScene(PSSceneIn input) : SV_Target
 {	
+	
 	//obtain screen position
 	input.ScreenPosition.xy /= input.ScreenPosition.w;
 
@@ -206,17 +176,16 @@ float4 PSScene(PSSceneIn input) : SV_Target
 	//the screen coordinates are in [-1,1],[1,-1]
 	//the texture coordinates need to be in [0,1],[0,1]
 
-	float2 texCoord = 0.5f * (float2(input.ScreenPosition.x, -input.ScreenPosition.y) + 1.0f);
+	float2 texCoord = 0.5f * float2(input.ScreenPosition.x, -input.ScreenPosition.y) + 0.5f;
 
 	//align texels to pixels
-	texCoord -= HalfPixel;
+	texCoord -= halfPixel;
 
 	//get normal data from the normalMap
 	float4 normalData = tNormalMap.Sample(PointClampSampler, texCoord);
 
 	//transform normal back into [-1,1] range
-	float3 normal = decode(normalData);
-	normal = normalize(normal);
+	float3 normal = normalize(decode(normalData));
 
 	//get specular power, and get it into [0,255] range
 	float specularPower = normalData.a * 255;
@@ -226,7 +195,7 @@ float4 PSScene(PSSceneIn input) : SV_Target
 
 	//read depth
 	float depthVal = tDepthMap.Sample(PointClampSampler, texCoord).r;
-	clip(-depthVal + 0.99999f);
+	clip(-depthVal + 0.9999f);
 	//compute screen-space position
 	float4 position;
 
@@ -238,15 +207,24 @@ float4 PSScene(PSSceneIn input) : SV_Target
 	float4 worldPosition = mul(position, mIVP);
 	worldPosition /= worldPosition.w;
 
+	//Calculate shadows
 	float ShadowFactor = 1.0f;
-	if(castShadows)
+
+	float4 lightPos = mul(worldPosition, mLightViewProjection);
+
+	lightPos.xy /= lightPos.w;
+
+	//Calculate TexCoords from light Point of view
+	float2 LightTexCoord = 0.5f * float2(lightPos.x, -lightPos.y) + 0.5f;
+		
+	float Attenuation = tCookie.Sample(LinearClampSampler, LightTexCoord).r;
+	if(castShadow)
 	{
-		float3 lightToPixel = worldPosition.xyz - gLightPos.xyz;
-		float pixelDepth = length(lightToPixel);
-		ShadowFactor = VSM_FILTER(cShadowCubeMap, lightToPixel, pixelDepth);
+		float lightDepth = length(worldPosition.xyz - gLightPos);
+
+		ShadowFactor = VSM_FILTER(tShadowMap, LightTexCoord, lightDepth);
 	}
-	
-	return ShadowFactor * Phong(worldPosition.xyz, normal, specularIntensity, specularPower);
+	return ShadowFactor * Phong(worldPosition.xyz, normal, Attenuation, specularIntensity, specularPower);
 }
 
 float4 Empty_PSScene(PSSceneIn input) : SV_Target

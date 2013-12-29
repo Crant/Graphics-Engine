@@ -44,5 +44,8 @@ extern "C"
 		virtual float GetSensitivity() const = 0;
 
 		virtual void SetFollowTerrain(bool follow) = 0;
+
+		virtual void SetUpdate(bool update) = 0;
+		virtual bool IsUpdating() = 0;
 	};
 }

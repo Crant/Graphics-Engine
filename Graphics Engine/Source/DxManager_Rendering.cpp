@@ -71,7 +71,7 @@ void DxManager::Render()
 	this->zPerf.PreMeasure("Renderer - Render Lights", 2);
 #endif
 
-	this->RenderLights();
+	this->RenderPointLights();
 
 #ifdef PERFORMANCE_TEST
 	this->zPerf.PostMeasure("Renderer - Render Lights", 2);
@@ -368,6 +368,11 @@ void DxManager::CreateShadowMapsMultiPass()
 			}
 		}	
 	}
+
+	for(auto it_SpotLights = this->zSpotLights.begin(); it_SpotLights != this->zSpotLights.end(); it_SpotLights++)
+	{
+
+	}
 }
 
 void DxManager::CreateShadowMapsSinglePass()
@@ -469,7 +474,7 @@ void DxManager::CreateShadowMapsSinglePass()
 	}
 }
 
-void DxManager::RenderLights()
+void DxManager::RenderPointLights()
 {
 	this->Dx_DeviceContext->OMSetRenderTargets(1, &this->Dx_GBufferRTV[LIGHT], this->Dx_DepthStencilView);
 	this->Dx_DeviceContext->RSSetViewports(1, &this->Dx_Viewport);
@@ -548,9 +553,33 @@ void DxManager::RenderLights()
 #ifdef PERFORMANCE_TEST
 		this->zPerf.PostMeasure("Renderer - Render Lights Pass 2", 3);
 #endif
+		ID3D11ShaderResourceView* pSRV = NULL;
+
+		this->zShader_PointLight->SetResource("cShadowCubeMap", pSRV);
+		this->zShader_PointLight->SetResource("tColorMap", pSRV);
+		this->zShader_PointLight->SetResource("tNormalMap", pSRV);
+		this->zShader_PointLight->SetResource("tDepthMap", pSRV);
+
+		this->zShader_PointLight->Apply(1);
 	}
 
-	this->zShader_PointLight->SetResource("cShadowCubeMap", NULL);
+	
+}
+
+void DxManager::RenderSpotLights()
+{
+	this->Dx_DeviceContext->OMSetRenderTargets(1, &this->Dx_GBufferRTV[LIGHT], this->Dx_DepthStencilView);
+	this->Dx_DeviceContext->RSSetViewports(1, &this->Dx_Viewport);
+
+	this->zShader_PointLight->SetResource("tColorMap", this->Dx_GBufferSRV[COLOR]);
+	this->zShader_PointLight->SetResource("tNormalMap", this->Dx_GBufferSRV[NORMAL]);
+	this->zShader_PointLight->SetResource("tDepthMap", this->Dx_GBufferSRV[DEPTH]);
+	D3DXVECTOR3 camPos = this->zCamera->GetPositionD3D();
+
+	for(auto it_SpotLights = this->zSpotLights.begin(); it_SpotLights != this->zSpotLights.end(); it_SpotLights++)
+	{
+
+	}
 }
 
 void DxManager::RenderFinalImage()

@@ -17,6 +17,7 @@
 #include <iText.h>
 #include <iImage.h>
 #include <iPointLight.h>
+#include <iSpotLight.h>
 
 extern "C"
 {
@@ -71,6 +72,9 @@ extern "C"
 
 		virtual iPointLight* CreatePointLight(Vector3 pos, float radius, float intensity, bool enableShadows = false) = 0;
 		virtual void DeletePointLight(iPointLight* &pLight) = 0;
+
+		virtual iSpotLight* CreateSpotLight(Vector3 pos, Vector3 direction, float intensity, bool enableShadows = false) = 0;
+		virtual void DeleteSpotLight(iSpotLight* &sLight) = 0;
 	};
 
 	DECLDIR GraphicsEngine* CreateGraphicsEngine(unsigned int hInstance, const char* configFile);

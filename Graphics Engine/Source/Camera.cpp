@@ -28,67 +28,72 @@ Camera::Camera( HWND z_hWnd, GraphicsEngineParams &params )
 	D3DXMatrixMultiply(&this->zViewProj, &this->zView, &this->zProj);
 
 	this->zFollowTerrain = false;
+
+	this->zUpdateCamera = true;
 }
 
 void Camera::Update( float dt )
 {
 	POINT p;
 
-	if (GetCursorPos(&p))
+	if(this->zUpdateCamera)
 	{
-		if (ScreenToClient(this->z_hWnd, &p))
+		if (GetCursorPos(&p))
 		{
-			float diffX = (this->zParams.WindowWidth * 0.5f) - (float)p.x;
-			float diffY = (this->zParams.WindowHeight * 0.5f) - (float)p.y;
+			if (ScreenToClient(this->z_hWnd, &p))
+			{
+				float diffX = (this->zParams.WindowWidth * 0.5f) - (float)p.x;
+				float diffY = (this->zParams.WindowHeight * 0.5f) - (float)p.y;
 
-			this->zAngleX += diffX * (this->zParams.MouseSensativity * 0.00001f);
-			this->zAngleY += diffY * (this->zParams.MouseSensativity * 0.00001f);
+				this->zAngleX += diffX * (this->zParams.MouseSensativity * 0.00001f);
+				this->zAngleY += diffY * (this->zParams.MouseSensativity * 0.00001f);
 
-			fmod(this->zAngleX, 2 * PI);
-			fmod(this->zAngleY, 2 * PI);
+				fmod(this->zAngleX, 2 * PI);
+				fmod(this->zAngleY, 2 * PI);
 
-			//Clamp Angle X between 0 & PI
-			if(this->zAngleX > 2.0f * PI)
-				this->zAngleX -= 2.0f * PI;
-			if(this->zAngleX < 0)
-				this->zAngleX += 2.0f * PI;
+				//Clamp Angle X between 0 & PI
+				if(this->zAngleX > 2.0f * PI)
+					this->zAngleX -= 2.0f * PI;
+				if(this->zAngleX < 0)
+					this->zAngleX += 2.0f * PI;
 
-			//Clamp Angle Y between -PI & PI
-			if(this->zAngleY > PI)
-				this->zAngleY = PI;
-			if(this->zAngleY < -PI)
-				this->zAngleY = -PI;
+				//Clamp Angle Y between -PI & PI
+				if(this->zAngleY > PI)
+					this->zAngleY = PI;
+				if(this->zAngleY < -PI)
+					this->zAngleY = -PI;
 
-			this->zForwardW.x = cos(this->zAngleX);
-			this->zForwardW.y = this->zAngleY;
-			this->zForwardW.z = sin(this->zAngleX);
+				this->zForwardW.x = cos(this->zAngleX);
+				this->zForwardW.y = this->zAngleY;
+				this->zForwardW.z = sin(this->zAngleX);
 
-			D3DXVec3Normalize(&this->zForwardW, &this->zForwardW);
+				D3DXVec3Normalize(&this->zForwardW, &this->zForwardW);
 
-			//Calculate new Up Vector
-			Vector3 yAxis = Vector3(0, 1, 0);
-			Vector3 tmpForward = Vector3();
-			tmpForward.x = this->zForwardW.x;
-			tmpForward.y = this->zForwardW.y;
-			tmpForward.z = this->zForwardW.z;
+				//Calculate new Up Vector
+				Vector3 yAxis = Vector3(0, 1, 0);
+				Vector3 tmpForward = Vector3();
+				tmpForward.x = this->zForwardW.x;
+				tmpForward.y = this->zForwardW.y;
+				tmpForward.z = this->zForwardW.z;
 
-			Vector3 rightVec = yAxis.GetCrossProduct(tmpForward);
-			rightVec.Normalize();
+				Vector3 rightVec = yAxis.GetCrossProduct(tmpForward);
+				rightVec.Normalize();
 
-			this->zRightW.x = rightVec.x;
-			this->zRightW.y = rightVec.y;
-			this->zRightW.z = rightVec.z;
+				this->zRightW.x = rightVec.x;
+				this->zRightW.y = rightVec.y;
+				this->zRightW.z = rightVec.z;
 
-			Vector3 tmpUp = Vector3();
-			tmpUp = tmpForward.GetCrossProduct(rightVec);
-			tmpUp.Normalize();
+				Vector3 tmpUp = Vector3();
+				tmpUp = tmpForward.GetCrossProduct(rightVec);
+				tmpUp.Normalize();
 
-			this->zUpW.x = tmpUp.x;
-			this->zUpW.y = tmpUp.y;
-			this->zUpW.z = tmpUp.z;
+				this->zUpW.x = tmpUp.x;
+				this->zUpW.y = tmpUp.y;
+				this->zUpW.z = tmpUp.z;
+			}
 		}
 	}
-
+	
 	this->BuildViewMatrix();
 
 	D3DXMatrixPerspectiveFovLH(&this->zProj, this->zParams.FOV * 0.01745f,

@@ -673,3 +673,26 @@ void GraphicsEngineImpl::DeletePointLight( PointLight* pLight )
 {
 	this->dx->DeletePointLight(pLight);
 }
+
+SpotLight* GraphicsEngineImpl::CreateSpotLight( D3DXVECTOR3 pos, D3DXVECTOR3 direction, float intensity, bool enableShadows /*= false*/ )
+{
+	SpotLight* light = new SpotLight(pos, direction, intensity, enableShadows, 3.14f * 0.5f, 10, 1);
+	this->dx->CreateSpotLight(light);
+	return light;
+}
+
+iSpotLight* GraphicsEngineImpl::CreateSpotLight( Vector3 pos, Vector3 direction, float intensity, bool enableShadows /*= false*/ )
+{
+	return this->CreateSpotLight(D3DXVECTOR3(pos.x, pos.y, pos.z), D3DXVECTOR3(direction.x, direction.y, direction.z), intensity, enableShadows);
+}
+
+void GraphicsEngineImpl::DeleteSpotLight( SpotLight* sLight )
+{
+	this->dx->DeleteSpotLight(sLight);
+}
+
+void GraphicsEngineImpl::DeleteSpotLight( iSpotLight* &sLight )
+{
+	this->DeleteSpotLight(dynamic_cast<SpotLight*>(sLight));
+	sLight = NULL;
+}

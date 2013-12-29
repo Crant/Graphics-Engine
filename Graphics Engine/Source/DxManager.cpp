@@ -752,6 +752,14 @@ DxManager::~DxManager()
 	}
 	this->zPointLights.clear();
 
+	for (auto it_SpotLight = this->zSpotLights.begin(); it_SpotLight != this->zSpotLights.end(); it_SpotLight++)
+	{
+		SpotLight* obj = (*it_SpotLight);
+		if (obj)
+			delete obj;
+	}
+	this->zPointLights.clear();
+
 	for (auto it = this->zTexts.begin(); it != this->zTexts.end(); it++)
 	{
 		Text* obj = (*it);
@@ -869,9 +877,13 @@ void DxManager::Life()
 				this->HandleImageEvent(IEV);
 			}
 			//LightEvent
-			else if (LightEvent* LEV = dynamic_cast<LightEvent*>(ev))
+			else if (PointLightEvent* PEV = dynamic_cast<PointLightEvent*>(ev))
 			{
-				this->HandlePointLightEvent(LEV);
+				this->HandlePointLightEvent(PEV);
+			}
+			else if (SpotLightEvent* SEV = dynamic_cast<SpotLightEvent*>(ev))
+			{
+				this->HandleSpotLightEvent(SEV);
 			}
 			//TerrainEvent
 			else if(TerrainEvent* TEV = dynamic_cast<TerrainEvent*>(ev))
@@ -1189,13 +1201,26 @@ void DxManager::DeleteText( Text* text )
 
 void DxManager::CreatePointLight( PointLight* pLight )
 {
-	LightEvent* le = new LightEvent(true, pLight);
+	PointLightEvent* le = new PointLightEvent(true, pLight);
 	pLight->Init(this->Dx_Device, this->Dx_DeviceContext);
 	this->PutEvent(le);
 }
 
 void DxManager::DeletePointLight( PointLight* pLight )
 {
-	LightEvent* le = new LightEvent(false, pLight);
+	PointLightEvent* le = new PointLightEvent(false, pLight);
+	this->PutEvent(le);
+}
+
+void DxManager::CreateSpotLight( SpotLight* sLight )
+{
+	SpotLightEvent* le = new SpotLightEvent(true, sLight);
+	sLight->Init(this->Dx_Device, this->Dx_DeviceContext);
+	this->PutEvent(le);
+}
+
+void DxManager::DeleteSpotLight( SpotLight* sLight )
+{
+	SpotLightEvent* le = new SpotLightEvent(false, sLight);
 	this->PutEvent(le);
 }

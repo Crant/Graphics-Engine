@@ -18,6 +18,7 @@
     <ClInclude Include="..\Include\iKeyListener.h" />
     <ClInclude Include="..\Include\iMesh.h" />
     <ClInclude Include="..\Include\iPointLight.h" />
+    <ClInclude Include="..\Include\iSpotLight.h" />
     <ClInclude Include="..\Include\iTerrain.h" />
     <ClInclude Include="..\Include\iText.h" />
     <ClInclude Include="..\Include\Matrix.h" />
@@ -56,6 +57,7 @@
     <ClInclude Include="Source\Shader.h" />
     <ClInclude Include="Source\SkyBox.h" />
     <ClInclude Include="Source\Sphere.h" />
+    <ClInclude Include="Source\SpotLight.h" />
     <ClInclude Include="Source\StaticMesh.h" />
     <ClInclude Include="Source\Terrain.h" />
     <ClInclude Include="Source\Text.h" />
@@ -92,6 +94,7 @@
     <ClCompile Include="Source\Shader.cpp" />
     <ClCompile Include="Source\SkyBox.cpp" />
     <ClCompile Include="Source\Sphere.cpp" />
+    <ClCompile Include="Source\SpotLight.cpp" />
     <ClCompile Include="Source\StaticMesh.cpp" />
     <ClCompile Include="Source\Terrain.cpp" />
     <ClCompile Include="Source\Text.cpp" />
@@ -136,6 +139,10 @@
     <FxCompile Include="..\WorkingDir\Shaders\SkyBox.fx">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+    </FxCompile>
+    <FxCompile Include="..\WorkingDir\Shaders\SpotLight.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="..\WorkingDir\Shaders\TextRenderer.fx">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>

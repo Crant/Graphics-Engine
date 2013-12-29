@@ -26,6 +26,8 @@ private:
 	float zAngleX;
 	float zAngleY;
 
+	bool zUpdateCamera;
+
 	HWND z_hWnd;
 	GraphicsEngineParams &zParams;
 
@@ -80,6 +82,10 @@ public:
 	virtual void SetFollowTerrain(bool follow) {this->zFollowTerrain = follow;}
 
 	bool GetFollowTerrain() {return this->zFollowTerrain;}
+
+	void SetUpdate(bool update) {this->zUpdateCamera = update;}
+
+	bool IsUpdating() {return this->zUpdateCamera;}
 };
 
 #pragma warning ( pop )

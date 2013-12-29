@@ -66,18 +66,57 @@ void GSCubeGenerateVSM(triangle GS_IN_CUBE input[3], inout TriangleStream<PS_IN_
         // Compute screen coordinates
         PS_IN_CUBE output;
 		output.RTIndex = f;
-	 	// For each vertex of the triangle, compute screen space position and pass distance
-	 	//--
-	 	[unroll]
-        for( int v = 0; v < 3; v++ )
-        {
-			float4 eyePos = mul(input[v].Position, mLightView[f]);
-            output.Position = mul(eyePos, mProj);
-			output.Depth = length(gLightPos.xyz - input[v].Position.xyz);
+		if(true)
+		{
+			matrix viewProj = mul(mLightView[f], mProj);
+			//Transform Verts
+			float4 pos[3];
+			pos[0] = mul(viewProj, input[0].Position);
+			pos[1] = mul(viewProj, input[1].Position);
+			pos[2] = mul(viewProj, input[2].Position);
+			// Frustrum Culling
+			float4 t0 = saturate(pos[0].xyxy * float4(-1, -1, 1, 1) - pos[0].w);
+			float4 t1 = saturate(pos[1].xyxy * float4(-1, -1, 1, 1) - pos[1].w);
+			float4 t2 = saturate(pos[2].xyxy * float4(-1, -1, 1, 1) - pos[2].w);
+			float4 t = t0 * t1 * t2;
+			[branch]
+			if(!any(t))
+			{
+				float2 d0 = pos[1].xy / abs(pos[1].w) - pos[0].xy / abs(pos[0].w);
+				float2 d1 = pos[2].xy / abs(pos[2].w) - pos[0].xy / abs(pos[0].w);
+				[branch]
+				if(d1.x * d0.y > d0.x * d1.y)
+				{
+					// For each vertex of the triangle, compute screen space position and pass distance
+	 				//--
+	 				[unroll]
+					for( int v = 0; v < 3; v++ )
+					{
+						float4 eyePos = mul(input[v].Position, mLightView[f]);
+						output.Position = mul(eyePos, mProj);
+						output.Depth = length(gLightPos.xyz - input[v].Position.xyz);
 			
-            CubeMapStream.Append( output );
-        }
-        CubeMapStream.RestartStrip();
+						CubeMapStream.Append( output );
+					}
+					CubeMapStream.RestartStrip();
+				}
+			}
+		}
+		else
+		{
+			// For each vertex of the triangle, compute screen space position and pass distance
+	 		//--
+	 		[unroll]
+			for( int v = 0; v < 3; v++ )
+			{
+				float4 eyePos = mul(input[v].Position, mLightView[f]);
+				output.Position = mul(eyePos, mProj);
+				output.Depth = length(gLightPos.xyz - input[v].Position.xyz);
+			
+				CubeMapStream.Append( output );
+			}
+			CubeMapStream.RestartStrip();
+		}
     }
 }
 float4 PSCubeGenerateVSM( PS_IN_CUBE input ) : SV_Target

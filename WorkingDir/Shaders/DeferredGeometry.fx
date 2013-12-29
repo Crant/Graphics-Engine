@@ -150,19 +150,19 @@ PSSceneOut PSScene(PSSceneIn input) : SV_Target
 
 	output.Color.rgb = textureColor.rgb;
 	
-	
 	//Transform normal
 	if(!useNormalMap)
 	{
-		output.Normal.rgb = encode(input.Normal);
+		output.Normal.xyz = encode(input.Normal);
 	}
 	else
 	{
-		float3 bumpMap = normalMap.Sample(LinearSampler, input.TexCoord).xyz * 2.0f - 1.0f;
+		float3 bumpMap = normalMap.Sample(AnisotropicWrapSampler, input.TexCoord).xyz;
+		// Expand the range of the normal value from (0, +1) to (-1, +1).
 		bumpMap = decode(float4(bumpMap, 1.0f));
-		
+		// Calculate the normal from the data in the bump map.
 		float3 bumpNormal = input.Normal + bumpMap.x * input.Tangent + bumpMap.y * input.Binormal;
-		output.Normal.xyz = encode(bumpNormal);
+		output.Normal.xyz = encode(normalize(bumpNormal));
 	}
 
 	if(!useSpecMap)

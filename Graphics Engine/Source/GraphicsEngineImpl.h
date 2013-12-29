@@ -129,6 +129,12 @@ public:
 	PointLight* CreatePointLight(D3DXVECTOR3 pos, float radius, float intensity, bool enableShadows);
 	void DeletePointLight(PointLight* pLight);
 
+	virtual iSpotLight* CreateSpotLight(Vector3 pos, Vector3 direction, float intensity, bool enableShadows = false);
+	virtual void DeleteSpotLight(iSpotLight* &sLight);
+
+	SpotLight* CreateSpotLight(D3DXVECTOR3 pos, D3DXVECTOR3 direction, float intensity, bool enableShadows = false);
+	void DeleteSpotLight(SpotLight* sLight);
+
 	virtual void ResetPerfLogging();
 	virtual void PrintPerfLogging();
 };

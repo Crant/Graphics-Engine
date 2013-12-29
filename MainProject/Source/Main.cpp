@@ -45,8 +45,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	//iPointLight* pLight1 = gEng->CreatePointLight(Vector3(-3.0f, 3.0f, 0.0f), 7.0f, 1.0f, true);
 	//pLight1->SetColor(Vector3(255.0f, 255.0f, 0.0f));
 
-	iPointLight* pLight2 = gEng->CreatePointLight(Vector3(1.4f, 1.0f, 0.0f), 1.0f, 1.0f, true);
+	iPointLight* pLight2 = gEng->CreatePointLight(Vector3(1.4f, 1.0f, 0.0f), 2.0f, 1.0f, true);
 	pLight2->SetColor(Vector3(0.0f, 255.0f, 255.0f));
+	
+	iSpotLight* sLight = gEng->CreateSpotLight(gEng->GetCamera()->GetPosition(), gEng->GetCamera()->GetForward(), 1.0f, true);
+	sLight->SetColor(Vector3(255.0f, 0.0f, 255.0f));
 
 	gEng->GetCamera()->SetPosition(Vector3(0, 5, 0));
 	gEng->GetCamera()->LookAt(Vector3(10, 0, 0));
@@ -96,19 +99,21 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		{
 			gEng->StopRunning();
 		}
-		if(gEng->GetKeyListener()->IsPressed('I'))
+		if(gEng->GetKeyListener()->IsClicked(2))
 		{
-			increase = !increase;
-		}
-		if(increase)
-		{
-		//	pLight1->SetRadius(pLight1->GetRadius()+0.1f*deltaTime);
-			pLight2->SetRadius(pLight2->GetRadius()+0.1f*deltaTime);
+			gEng->GetCamera()->SetUpdate(true);
 		}
 		else
 		{
-		//	pLight1->SetRadius(pLight1->GetRadius()-0.1f*deltaTime);
-			pLight2->SetRadius(pLight2->GetRadius()-0.1f*deltaTime);
+			gEng->GetCamera()->SetUpdate(false);
+		}
+		if(gEng->GetKeyListener()->IsPressed('I'))
+		{
+			pLight2->SetRadius(pLight2->GetRadius()+0.3f*deltaTime);
+		}
+		if(gEng->GetKeyListener()->IsPressed('O'))
+		{
+			pLight2->SetRadius(pLight2->GetRadius()-0.3f*deltaTime);
 		}
 		
 	}

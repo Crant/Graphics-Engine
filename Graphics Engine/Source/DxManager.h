@@ -24,11 +24,13 @@ class SkyBoxEvent;
 class StaticMeshEvent;
 class ImageEvent;
 class TextEvent;
-class LightEvent;
+class PointLightEvent;
+class SpotLightEvent;
 
 #if defined(DEBUG) || defined(_DEBUG)
 	#include <vld.h>
 #endif
+#include "SpotLight.h"
 
 #define NUMBER_OF_VIEWS 5
 #define MAX_RENDER_TARGET_DEBUG 4
@@ -66,6 +68,7 @@ private:
 	std::vector<StaticMesh*> zObjects;
 	std::vector<Text*> zTexts;
 	std::vector<PointLight*> zPointLights;
+	std::vector<SpotLight*> zSpotLights;
 
 	D3DXVECTOR2 zHalfPixel;
 
@@ -127,7 +130,8 @@ private:
 	/*! Render Terrain.*/
 	void RenderTerrain();
 	/*! Render Lights.*/
-	void RenderLights();
+	void RenderPointLights();
+	void RenderSpotLights();
 	/*! Create ShadowMaps.*/
 	void CreateShadowMapsMultiPass();
 	void CreateShadowMapsSinglePass();
@@ -140,7 +144,8 @@ private:
 	void HandleSkyBoxEvent(SkyBoxEvent* sbe);
 	void HandleImageEvent(ImageEvent* iev);
 	void HandleTextEvent(TextEvent* te);
-	void HandlePointLightEvent(LightEvent* lev);
+	void HandlePointLightEvent(PointLightEvent* lev);
+	void HandleSpotLightEvent( SpotLightEvent* lev );
 
 	void CalculateCameraHeight();
 public:
@@ -165,13 +170,16 @@ public:
 	void CreateImage(Image* img, std::string texture);
 	void CreateText(Text* text, string font);
 	void CreatePointLight(PointLight* pLight);
+	void CreateSpotLight(SpotLight* sLight);
 
 	void DeleteStaticMesh(StaticMesh* mesh);
 	void DeleteTerrain(Terrain* terrain);
 	void DeleteImage(Image* img);
 	void DeleteText(Text* text);
 	void DeletePointLight(PointLight* pLight);
+	void DeleteSpotLight(SpotLight* sLight);
 
 	void ResetPerfLogging();
 	void PrintPerfLogging();
+	
 };
