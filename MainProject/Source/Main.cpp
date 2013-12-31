@@ -42,10 +42,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	gEng->CreateTerrain(Vector3(0, 0, 0), Vector3(15.0f, 1.0f, 15.0f), 256, "media/Terrain/TerrainOne.raw");
 	//gEng->CreateTerrain(Vector3(0.0f, 0.0f, 10.0f), Vector3(10.0f, 1.0f, 10.0f), 256, "");
 
-	//iPointLight* pLight1 = gEng->CreatePointLight(Vector3(-3.0f, 3.0f, 0.0f), 7.0f, 1.0f, true);
+	//iPointLight* pLight1 = gEng->CreatePointLight(Vector3(-3.0f, 1.0f, 0.0f), 2.0f, 1.0f, true);
 	//pLight1->SetColor(Vector3(255.0f, 255.0f, 0.0f));
 
-	iPointLight* pLight2 = gEng->CreatePointLight(Vector3(1.4f, 1.0f, 0.0f), 2.0f, 1.0f, true);
+	iPointLight* pLight2 = gEng->CreatePointLight(Vector3(1.4f, 1.0f, 0.0f), 2.0f, 1.0f, false);
 	pLight2->SetColor(Vector3(0.0f, 255.0f, 255.0f));
 	
 	iSpotLight* sLight = gEng->CreateSpotLight(gEng->GetCamera()->GetPosition(), gEng->GetCamera()->GetForward(), 1.0f, true);
@@ -109,10 +109,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		}
 		if(gEng->GetKeyListener()->IsPressed('I'))
 		{
+			//pLight1->SetRadius(pLight1->GetRadius()+0.3f*deltaTime);
 			pLight2->SetRadius(pLight2->GetRadius()+0.3f*deltaTime);
 		}
 		if(gEng->GetKeyListener()->IsPressed('O'))
 		{
+			//pLight1->SetRadius(pLight1->GetRadius()-0.3f*deltaTime);
 			pLight2->SetRadius(pLight2->GetRadius()-0.3f*deltaTime);
 		}
 		

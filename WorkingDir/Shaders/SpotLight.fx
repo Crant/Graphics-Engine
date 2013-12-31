@@ -90,7 +90,7 @@ cbuffer cbEveryFrame
 };
 cbuffer cbRarely
 {
-	float2 halfPixel;
+	
 };
 
 //Normal Decoding Function
@@ -177,9 +177,6 @@ float4 PSScene(PSSceneIn input) : SV_Target
 	//the texture coordinates need to be in [0,1],[0,1]
 
 	float2 texCoord = 0.5f * float2(input.ScreenPosition.x, -input.ScreenPosition.y) + 0.5f;
-
-	//align texels to pixels
-	texCoord -= halfPixel;
 
 	//get normal data from the normalMap
 	float4 normalData = tNormalMap.Sample(PointClampSampler, texCoord);

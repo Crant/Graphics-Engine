@@ -53,7 +53,7 @@ struct PSSceneIn
 //-----------------------------------------------------------------------------------------
 cbuffer cbEveryFrame
 {
-	float2 HalfPixel;
+
 };
 
 //-----------------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ PSSceneIn VSScene(VSSceneIn input)
 	output.Position = float4(input.Position, 1.0f);
 
 	//Align texture coordinates
-	output.TexCoord = input.TexCoord - HalfPixel;
+	output.TexCoord = input.TexCoord;
 
 	return output;
 }

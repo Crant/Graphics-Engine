@@ -70,8 +70,6 @@ private:
 	std::vector<PointLight*> zPointLights;
 	std::vector<SpotLight*> zSpotLights;
 
-	D3DXVECTOR2 zHalfPixel;
-
 	// Standard stuff
 	ID3D11Device* Dx_Device;
 	IDXGISwapChain* Dx_SwapChain;

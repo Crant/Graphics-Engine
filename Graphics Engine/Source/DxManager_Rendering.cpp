@@ -307,6 +307,8 @@ void DxManager::CreateShadowMapsMultiPass()
 
 					this->zShader_CubeShadowMap->SetMatrix("mWorld", staticMesh->GetWorldMatrix());
 
+					this->Dx_DeviceContext->IASetPrimitiveTopology(staticMesh->GetTopology());
+
 					std::vector<MeshStrip*> strips = staticMesh->GetStrips();
 
 					for (auto it_strip = strips.begin(); it_strip != strips.end(); it_strip++)
@@ -341,26 +343,26 @@ void DxManager::CreateShadowMapsMultiPass()
 					}
 				}
 
-				for (auto it_Terrains = this->zTerrains.begin(); it_Terrains != this->zTerrains.cend(); it_Terrains++)
+				/*for (auto it_Terrains = this->zTerrains.begin(); it_Terrains != this->zTerrains.cend(); it_Terrains++)
 				{
-					Terrain* terrain = (*it_Terrains);
+				Terrain* terrain = (*it_Terrains);
 
-					this->Dx_DeviceContext->IASetPrimitiveTopology(terrain->GetTopology());
+				this->Dx_DeviceContext->IASetPrimitiveTopology(terrain->GetTopology());
 
-					this->zShader_CubeShadowMap->SetMatrix("mWorld", terrain->GetWorldMatrix());
+				this->zShader_CubeShadowMap->SetMatrix("mWorld", terrain->GetWorldMatrix());
 
-					Buffer* indBuffer = terrain->GetIndexBufferPtr()->GetBufferPointer();
-					Buffer* vertBuffer = terrain->GetVertexBufferPtr()->GetBufferPointer();
+				Buffer* indBuffer = terrain->GetIndexBufferPtr()->GetBufferPointer();
+				Buffer* vertBuffer = terrain->GetVertexBufferPtr()->GetBufferPointer();
 
-					vertBuffer->Apply();
-					indBuffer->Apply();
+				vertBuffer->Apply();
+				indBuffer->Apply();
 
-					this->zShader_CubeShadowMap->Apply(0);
+				this->zShader_CubeShadowMap->Apply(0);
 
-					UINT32 numElements = indBuffer->GetElementCount();
+				UINT32 numElements = indBuffer->GetElementCount();
 
-					this->Dx_DeviceContext->DrawIndexed(numElements, 0, 0);
-				}
+				this->Dx_DeviceContext->DrawIndexed(numElements, 0, 0);
+				}*/
 			}
 			if(pLight->GetSRV())
 			{
@@ -512,8 +514,6 @@ void DxManager::RenderPointLights()
 		this->zShader_PointLight->SetMatrix("mProj", proj);
 		this->zShader_PointLight->SetMatrix("mIVP", invViewProj);
 
-		this->zShader_PointLight->SetFloat2("HalfPixel", this->zHalfPixel);
-
 		Buffer* vertBuffer = light->GetVertexBuffer()->GetBufferPointer();
 		Buffer* indBuffer = light->GetIndexBuffer()->GetBufferPointer();
 
@@ -586,7 +586,6 @@ void DxManager::RenderFinalImage()
 {
 	this->Dx_DeviceContext->OMSetRenderTargets(1, &this->Dx_RenderTargetView, this->Dx_DepthStencilView);
 
-	this->zShader_Final->SetFloat2("HalfPixel", this->zHalfPixel);
 	this->zShader_Final->SetResource("tColorMap", this->Dx_GBufferSRV[COLOR]);
 	this->zShader_Final->SetResource("tLightMap", this->Dx_GBufferSRV[LIGHT]);
 	this->zShader_Final->SetResource("tDepthMap", this->Dx_GBufferSRV[DEPTH]);

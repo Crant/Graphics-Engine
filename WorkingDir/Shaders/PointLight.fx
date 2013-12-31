@@ -131,7 +131,6 @@ cbuffer cbEveryLight
 
 cbuffer cbPerFrame
 {
-	float2 HalfPixel;
 	float3 gCameraPos;
 	matrix mView;
 	matrix mProj;
@@ -207,9 +206,6 @@ float4 PSScene(PSSceneIn input) : SV_Target
 	//the texture coordinates need to be in [0,1],[0,1]
 
 	float2 texCoord = 0.5f * (float2(input.ScreenPosition.x, -input.ScreenPosition.y) + 1.0f);
-
-	//align texels to pixels
-	texCoord -= HalfPixel;
 
 	//get normal data from the normalMap
 	float4 normalData = tNormalMap.Sample(PointClampSampler, texCoord);

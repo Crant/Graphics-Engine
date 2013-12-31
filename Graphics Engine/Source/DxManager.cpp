@@ -190,10 +190,6 @@ HRESULT DxManager::Init()
 	this->zQuadRenderer = new QuadRenderer();
 	this->zQuadRenderer->Init(this->Dx_Device, this->Dx_DeviceContext);
 
-	float x = 1.0f / this->zParams.WindowWidth;
-	float y = 1.0f / this->zParams.WindowHeight;
-	this->zHalfPixel = D3DXVECTOR2(x, y);
-
 	try
 	{
 		this->InitVertexBufferDebugging();
