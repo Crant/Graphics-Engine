@@ -27,7 +27,6 @@ BlendState ColorWriteDisable
 	BlendEnable[0] = FALSE;
 	SrcBlend = ZERO;
     DestBlend = ZERO;
-	RenderTargetWriteMask[0] = 0x0F;
 };
 
 DepthStencilState NoColorWriteDepthStencil
@@ -62,17 +61,61 @@ DepthStencilState ColorWriteDepthStencil
 	BackFaceStencilFunc = EQUAL;
 };
 
-DepthStencilState zWriteStencilDS
+/* 
+   - disable color writes
+   - disable z-buffer writes
+   - z-function = LESS
+   - stencil enabled
+   - stencilfunc = ALWAYS
+   - stencilops = all KEEP but STENCILPASS = REPLACE
+ */
+DepthStencilState FrontFaceDepthStencil
+{
+    DepthEnable = false;
+    DepthFunc = LESS;
+    DepthWriteMask = zero;
+    StencilEnable = true;
+	FrontFaceStencilFail = KEEP;
+	FrontFaceStencilDepthFail = KEEP;
+	FrontFaceStencilPass = REPLACE;
+	FrontFaceStencilFunc = ALWAYS;
+	BackFaceStencilFail = KEEP;
+	BackFaceStencilDepthFail = KEEP;
+	BackFaceStencilPass = REPLACE;
+	BackFaceStencilFunc = ALWAYS;
+};
+
+/* 
+   - color writes enabled
+   - z-buffer writes disabled
+   - z-function = GREATEREQUAL
+   - stenfilfunc = EQUAL
+   - stencilops = all KEEP
+ */
+DepthStencilState BackFaceDepthStencil
 {
     DepthEnable = false;
     DepthFunc = GREATER_EQUAL;
-    DepthWriteMask = All;
+    DepthWriteMask = zero;
     StencilEnable = true;
+	FrontFaceStencilFail = KEEP;
+	FrontFaceStencilDepthFail = KEEP;
+	FrontFaceStencilPass = KEEP;
+	FrontFaceStencilFunc = EQUAL;
+	BackFaceStencilFail = KEEP;
+	BackFaceStencilDepthFail = KEEP;
+	BackFaceStencilPass = KEEP;
+	BackFaceStencilFunc = EQUAL;
 };
 
 RasterizerState frontCulling
 {
     CullMode = Front;
+	FillMode = Solid;
+};
+RasterizerState backCulling
+{
+    CullMode = Back;
 	FillMode = Solid;
 };
 
@@ -106,8 +149,9 @@ float VSM_FILTER(TextureCube img, float3 tex, float fragDepth)
     float lit = 0.0f;
 
 	float occluder = img.Sample(LinearClampSampler, tex).x;
-	float overdark = 0.05f;
-	lit = saturate(exp(overdark * (occluder - fragDepth))) *0.5f;
+	float overdark = 10.0f;
+	lit = exp(overdark * occluder) * exp(-overdark * fragDepth);
+	lit = saturate(lit);
     
     return lit;
 }
@@ -125,7 +169,6 @@ cbuffer cbEveryLight
 	
 	float gLightRadius;
 	float gLightIntensity = 1.0f;
-	
 	bool castShadows = false;
 };
 
@@ -142,21 +185,24 @@ float4 Phong(float3 Position, float3 normal,
 				float specularIntensity, float specularPower)
 {
 	//surface to light vector
-	float3 lightVector = gLightPos.xyz - Position.xyz;
+	float3 lightVector = gLightPos - Position;
 
 	//compute attenuation base on distance - linear attenuation
-	float attenuation = (1.0f - length(lightVector) / gLightRadius);
+	//float attenuation = saturate(1.0f - (length(lightVector) / gLightRadius));
+
 	//float attenuation = saturate(1.0f - dot(lightVector / gLightRadius, lightVector / gLightRadius));
-	
+
+	float attenuation = 1.0f - saturate(length(lightVector) / gLightRadius);
+	attenuation = pow(attenuation, 2);
 	//normalize light vector
-	lightVector = normalize(lightVector);
+	float3 L = normalize(lightVector);
 
 	//compute diffuse light
-	float NdL = max(0, dot(normal, lightVector));
-	float3 diffuseLight = NdL * gColor.rgb;
+	float NdL = max(0.0f, dot(normal, L));
+	float3 diffuseLight = NdL * gColor; // När NdL blir 0 så blir det "Skuggor" i terrängen
 
 	//reflection vector
-	float3 reflectionVector = normalize(reflect(-lightVector, normal));
+	float3 reflectionVector = normalize(reflect(-L, normal));
 
 	//camera to surface vector
 	float3 directionToCamera = normalize(gCameraPos - Position);
@@ -168,6 +214,49 @@ float4 Phong(float3 Position, float3 normal,
 	float4 finalColor = attenuation * gLightIntensity * float4(diffuseLight.rgb, specularLight);
 	
 	return finalColor;
+}
+
+float4 Phong2(float3 Position, float3 normal,
+				float specularIntensity, float specularPower)
+{
+	float3 finalColor = float3(0.0f, 0.0f, 0.0f);
+
+	//Create the vector between light position and pixels position
+	float3 lightToPixelVec = gLightPos.xyz - Position.xyz;
+
+	//Find the distance between the light pos and pixel pos
+	float d = length(lightToPixelVec);
+
+	//Create the ambient light
+	float3 finalAmbient = gColor.rgb * float3(0.3f, 0.3f, 0.3f);
+
+	//If pixel is too far, return pixel color with ambient light
+	if(d > gLightRadius)
+		return float4(finalAmbient, 1.0f);
+
+	//Turn lightToPixelVec into a unit length vector describing
+	//the pixels direction from the lights position
+	lightToPixelVec /= d;
+
+	//Calculate how much light the pixel gets by the angle
+	//in which the light strikes the pixels surface
+	float howMuchLight = dot(lightToPixelVec, normal);
+
+	//If light is striking the front side of the pixel
+	if(howMuchLight > 0.0f)
+	{
+		//Add light to the finalColor of the pixel
+		finalColor += howMuchLight * gColor.rgb;
+		
+		//Calculate Light's falloff factor
+		float3 attenuation = float3(1.0f, 0.2f, 0.0f);
+		finalColor /=  attenuation.x + (attenuation.y * d) + (attenuation.z * (d*d));
+	}
+
+	//make sure the values are between 1 and 0, and add the ambient
+	finalColor = saturate(finalColor + finalAmbient);
+
+	return float4(finalColor, 1.0f);
 }
 
 //Normal Decoding Function
@@ -211,8 +300,7 @@ float4 PSScene(PSSceneIn input) : SV_Target
 	float4 normalData = tNormalMap.Sample(PointClampSampler, texCoord);
 
 	//transform normal back into [-1,1] range
-	float3 normal = decode(normalData);
-	normal = normalize(normal);
+	float3 normal = normalize(decode(normalData));
 
 	//get specular power, and get it into [0,255] range
 	float specularPower = normalData.a * 255;
@@ -255,6 +343,7 @@ float4 Empty_PSScene(PSSceneIn input) : SV_Target
 //-----------------------------------------------------------------------------------------
 technique11 Technique1
 {  
+	//Pass 1
 	pass p0
 	{
 		// Set VS, GS, and PS
@@ -268,6 +357,7 @@ technique11 Technique1
 		SetBlendState(ColorWriteDisable, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 	}
 
+	//Pass 2
 	pass p1
     {
 		// Set VS, GS, and PS
@@ -277,6 +367,34 @@ technique11 Technique1
 		
 		SetRasterizerState(frontCulling);
 		SetDepthStencilState( ColorWriteDepthStencil, 0 );
+	    //SetDepthStencilState( zWriteNoStencilEnable, 0 );
+		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+    }
+
+	//Inside Camera
+	pass p3
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSScene() ) );
+		
+		SetRasterizerState(backCulling);
+		SetDepthStencilState( FrontFaceDepthStencil, 0 );
+	    //SetDepthStencilState( zWriteNoStencilEnable, 0 );
+		SetBlendState(ColorWriteDisable, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+    }
+
+	//Outside Camera
+	pass p4
+    {
+		// Set VS, GS, and PS
+        SetVertexShader( CompileShader( vs_4_0, VSScene() ) );
+        SetGeometryShader( NULL );
+        SetPixelShader( CompileShader( ps_4_0, PSScene() ) );
+		
+		SetRasterizerState(frontCulling);
+		SetDepthStencilState( BackFaceDepthStencil, 0 );
 	    //SetDepthStencilState( zWriteNoStencilEnable, 0 );
 		SetBlendState(AdditiveBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
     }

@@ -15,11 +15,13 @@
     <ClInclude Include="Source\Cjen.h" />
     <ClInclude Include="Source\CjenFileDebug.h" />
     <ClInclude Include="Source\Graphics.h" />
+    <ClInclude Include="Source\TestProgram.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Shared\GameTimer.cpp" />
     <ClCompile Include="Source\Graphics.cpp" />
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\TestProgram.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{46150C0E-D5A6-4DDB-B948-B9DA7D8BF346}</ProjectGuid>

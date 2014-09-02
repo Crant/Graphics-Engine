@@ -58,10 +58,10 @@ void DxManager::Render()
 	this->zPerf.PreMeasure("Renderer - Generating Shadows", 2);
 #endif
 
-	if(false)
-		this->CreateShadowMapsSinglePass();
-	else
-		this->CreateShadowMapsMultiPass();
+ 	if(false)
+ 		this->CreateShadowMapsSinglePass();
+ 	else
+ 		this->CreateShadowMapsMultiPass();
 
 #ifdef PERFORMANCE_TEST
 	this->zPerf.PostMeasure("Renderer - Generating Shadows", 2);
@@ -193,7 +193,7 @@ void DxManager::RenderMeshes()
 
 			Object3D* object = strip->GetRenderObject();
 
-			bool bNormalMap = (object->GetNormalMapResource() != NULL);
+			bool bNormalMap = false;//(object->GetNormalMapResource() != NULL);
 
 			this->zShader_DeferredGeo->SetMatrix("mView", this->zCamera->GetViewMatrix());
 			this->zShader_DeferredGeo->SetMatrix("mProjection", this->zCamera->GetProjMatrix());
@@ -345,23 +345,23 @@ void DxManager::CreateShadowMapsMultiPass()
 
 				/*for (auto it_Terrains = this->zTerrains.begin(); it_Terrains != this->zTerrains.cend(); it_Terrains++)
 				{
-				Terrain* terrain = (*it_Terrains);
+					Terrain* terrain = (*it_Terrains);
 
-				this->Dx_DeviceContext->IASetPrimitiveTopology(terrain->GetTopology());
+					this->Dx_DeviceContext->IASetPrimitiveTopology(terrain->GetTopology());
 
-				this->zShader_CubeShadowMap->SetMatrix("mWorld", terrain->GetWorldMatrix());
+					this->zShader_CubeShadowMap->SetMatrix("mWorld", terrain->GetWorldMatrix());
 
-				Buffer* indBuffer = terrain->GetIndexBufferPtr()->GetBufferPointer();
-				Buffer* vertBuffer = terrain->GetVertexBufferPtr()->GetBufferPointer();
+					Buffer* indBuffer = terrain->GetIndexBufferPtr()->GetBufferPointer();
+					Buffer* vertBuffer = terrain->GetVertexBufferPtr()->GetBufferPointer();
 
-				vertBuffer->Apply();
-				indBuffer->Apply();
+					vertBuffer->Apply();
+					indBuffer->Apply();
 
-				this->zShader_CubeShadowMap->Apply(0);
+					this->zShader_CubeShadowMap->Apply(0);
 
-				UINT32 numElements = indBuffer->GetElementCount();
+					UINT32 numElements = indBuffer->GetElementCount();
 
-				this->Dx_DeviceContext->DrawIndexed(numElements, 0, 0);
+					this->Dx_DeviceContext->DrawIndexed(numElements, 0, 0);
 				}*/
 			}
 			if(pLight->GetSRV())
@@ -447,26 +447,26 @@ void DxManager::CreateShadowMapsSinglePass()
 				}
 			}
 
-			for (auto it_Terrains = this->zTerrains.begin(); it_Terrains != this->zTerrains.cend(); it_Terrains++)
+			/*for (auto it_Terrains = this->zTerrains.begin(); it_Terrains != this->zTerrains.cend(); it_Terrains++)
 			{
-				Terrain* terrain = (*it_Terrains);
+			Terrain* terrain = (*it_Terrains);
 
-				this->Dx_DeviceContext->IASetPrimitiveTopology(terrain->GetTopology());
+			this->Dx_DeviceContext->IASetPrimitiveTopology(terrain->GetTopology());
 
-				this->zShader_CubeShadowMap->SetMatrix("mWorld", terrain->GetWorldMatrix());
+			this->zShader_CubeShadowMap->SetMatrix("mWorld", terrain->GetWorldMatrix());
 
-				Buffer* indBuffer = terrain->GetIndexBufferPtr()->GetBufferPointer();
-				Buffer* vertBuffer = terrain->GetVertexBufferPtr()->GetBufferPointer();
+			Buffer* indBuffer = terrain->GetIndexBufferPtr()->GetBufferPointer();
+			Buffer* vertBuffer = terrain->GetVertexBufferPtr()->GetBufferPointer();
 
-				vertBuffer->Apply();
-				indBuffer->Apply();
+			vertBuffer->Apply();
+			indBuffer->Apply();
 
-				this->zShader_CubeShadowMap->Apply(0);
+			this->zShader_CubeShadowMap->Apply(0);
 
-				UINT32 numElements = indBuffer->GetElementCount();
+			UINT32 numElements = indBuffer->GetElementCount();
 
-				this->Dx_DeviceContext->DrawIndexed(numElements, 0, 0);
-			}
+			this->Dx_DeviceContext->DrawIndexed(numElements, 0, 0);
+			}*/
 
 			if(pLight->GetSRV())
 			{
@@ -478,7 +478,8 @@ void DxManager::CreateShadowMapsSinglePass()
 
 void DxManager::RenderPointLights()
 {
-	this->Dx_DeviceContext->OMSetRenderTargets(1, &this->Dx_GBufferRTV[LIGHT], this->Dx_DepthStencilView);
+	ID3D11RenderTargetView* rtv[1] = {this->Dx_GBufferRTV[LIGHT]};
+	this->Dx_DeviceContext->OMSetRenderTargets(1, rtv, this->Dx_DepthStencilView);
 	this->Dx_DeviceContext->RSSetViewports(1, &this->Dx_Viewport);
 
 	this->zShader_PointLight->SetResource("tColorMap", this->Dx_GBufferSRV[COLOR]);
@@ -488,17 +489,23 @@ void DxManager::RenderPointLights()
 
 	this->Dx_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	D3DXMATRIX view = this->zCamera->GetViewMatrix();
+	D3DXMATRIX proj = this->zCamera->GetProjMatrix();
+	D3DXMATRIX viewProj = this->zCamera->GetViewProjMatrix();
+
+	D3DXMATRIX invViewProj;
+	D3DXMatrixInverse(&invViewProj, 0, &viewProj);
+
+	this->zShader_PointLight->SetMatrix("mView", view);
+	this->zShader_PointLight->SetMatrix("mProj", proj);
+	this->zShader_PointLight->SetMatrix("mIVP", invViewProj);
+
 	for (auto it_PointLight = this->zPointLights.cbegin(); it_PointLight != this->zPointLights.cend(); it_PointLight++)
 	{
 		PointLight* light = (*it_PointLight);
 
-		this->zShader_PointLight->SetResource("cShadowCubeMap", light->GetSRV());
-
-		D3DXMATRIX view = this->zCamera->GetViewMatrix();
-		D3DXMATRIX proj = this->zCamera->GetProjMatrix();
-		D3DXMATRIX viewProj = this->zCamera->GetViewProjMatrix();
-		D3DXMATRIX invViewProj;
-		D3DXMatrixInverse(&invViewProj, 0, &viewProj);
+		ID3D11ShaderResourceView* cubeSrv = light->GetSRV();
+		this->zShader_PointLight->SetResource("cShadowCubeMap", cubeSrv);
 
 		D3DXVECTOR3 lightPos = light->GetPositionD3D();
 
@@ -510,9 +517,6 @@ void DxManager::RenderPointLights()
 		this->zShader_PointLight->SetFloat("gLightIntensity", light->GetIntensity());
 
 		this->zShader_PointLight->SetMatrix("mWorld", light->GetWorldMatrix());
-		this->zShader_PointLight->SetMatrix("mView", view);
-		this->zShader_PointLight->SetMatrix("mProj", proj);
-		this->zShader_PointLight->SetMatrix("mIVP", invViewProj);
 
 		Buffer* vertBuffer = light->GetVertexBuffer()->GetBufferPointer();
 		Buffer* indBuffer = light->GetIndexBuffer()->GetBufferPointer();
@@ -535,7 +539,7 @@ void DxManager::RenderPointLights()
 #ifdef PERFORMANCE_TEST
 		this->zPerf.PreMeasure("Renderer - Render Lights Pass 1", 3);
 #endif
-		this->zShader_PointLight->Apply(0);
+		this->zShader_PointLight->Apply(3);
 
 		this->Dx_DeviceContext->DrawIndexed(indBuffer->GetElementCount(), 0, 0);
 
@@ -553,6 +557,22 @@ void DxManager::RenderPointLights()
 #ifdef PERFORMANCE_TEST
 		this->zPerf.PostMeasure("Renderer - Render Lights Pass 2", 3);
 #endif
+
+		//D3DXVECTOR3 dist = light->GetPositionD3D() - this->zCamera->GetPositionD3D();
+		//float distToCam = D3DXVec3Length(&(dist));
+		//if(distToCam <= light->GetRadius())
+		//{
+		//	this->zShader_PointLight->Apply(2);
+		//
+		//	this->Dx_DeviceContext->DrawIndexed(indBuffer->GetElementCount(), 0, 0);
+		//}
+		//else
+		//{
+		//	this->zShader_PointLight->Apply(3);
+		//
+		//	this->Dx_DeviceContext->DrawIndexed(indBuffer->GetElementCount(), 0, 0);
+		//}
+		
 		ID3D11ShaderResourceView* pSRV = NULL;
 
 		this->zShader_PointLight->SetResource("cShadowCubeMap", pSRV);
@@ -719,7 +739,7 @@ void DxManager::DebugRenderTargets()
 			this->Dx_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 			this->zShader_DebugCubeMapSRV->SetResource("gCube", shadowCubeMap);
-			this->zShader_DebugCubeMapSRV->SetBool("bGray", false);
+			this->zShader_DebugCubeMapSRV->SetBool("bGray", true);
 			for(int i = 0; i < 6; i++)
 			{
 				UINT stride = sizeof(VertexTex3);

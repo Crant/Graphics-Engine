@@ -14,6 +14,7 @@
 #include <iMesh.h>
 #include <iKeyListener.h>
 #include <iTerrain.h>
+#include <iWater.h>
 #include <iText.h>
 #include <iImage.h>
 #include <iPointLight.h>
@@ -75,6 +76,8 @@ extern "C"
 
 		virtual iSpotLight* CreateSpotLight(Vector3 pos, Vector3 direction, float intensity, bool enableShadows = false) = 0;
 		virtual void DeleteSpotLight(iSpotLight* &sLight) = 0;
+
+
 	};
 
 	DECLDIR GraphicsEngine* CreateGraphicsEngine(unsigned int hInstance, const char* configFile);

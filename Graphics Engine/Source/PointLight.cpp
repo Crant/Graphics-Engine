@@ -82,7 +82,7 @@ void PointLight::Init( ID3D11Device* device, ID3D11DeviceContext* deviceContext 
 	this->zDevice = device;
 	this->zDeviceContext = deviceContext;
 
-	this->zSphere->Init(device, deviceContext, 1.0f, 50, 50);
+	this->zSphere->Init(device, deviceContext, this->zRadius, 50, 50);
 
 	try
 	{

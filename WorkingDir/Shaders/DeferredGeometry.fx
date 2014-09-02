@@ -104,7 +104,7 @@ cbuffer cbEveryStrip
 	bool useNormalMap;
 	bool useSpecMap;
 
-	float specularIntensity = 0.8f;
+	float specularIntensity = 0.1f;
 	float specularPower = 0.5f;
 }
 
