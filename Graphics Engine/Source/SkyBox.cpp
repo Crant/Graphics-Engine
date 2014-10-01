@@ -14,7 +14,7 @@ SkyBox::SkyBox(D3DXVECTOR3 pos, int latitude, int longitude) : StaticMesh(pos, "
 	float spherePitch = 0.0f;
 	D3DXMATRIX rotationx;
 	D3DXMATRIX rotationy;
-	std::vector<VertexNormalMap> vertices;
+	std::vector<VertexTangent> vertices;
 	vertices.resize(m_numSphereVertices);
 
 	D3DXVECTOR3 currVertPos = D3DXVECTOR3(0,0,0);

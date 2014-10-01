@@ -26,7 +26,7 @@ private:
 
 private:
 	std::vector<MeshStrip*> LoadMeshStrips(const char* filePath, ObjData* objData); //Helper function for loading the mesh strips from file.
-	void CalculateModelVectors(std::vector<VertexNormalMap>& verts);
+	void CalculateModelVectors(std::vector<VertexTangent>& verts);
 
 public:
 	ResourceManager();

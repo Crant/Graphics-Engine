@@ -15,7 +15,7 @@ private:
 	D3DXVECTOR3 zScale;
 
 	std::string zHeightMapFilename;
-	std::vector<Vertex> zVertices;
+	std::vector<VertexBinormal> zVertices;
 	std::vector<unsigned int> zIndices;
 	unsigned int zSize;
 
@@ -29,6 +29,7 @@ private:
 
 private:
 	void CreateMesh();
+	void CreateGrid();
 	void CalcNormals();
 
 public:

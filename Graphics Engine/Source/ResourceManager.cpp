@@ -60,13 +60,13 @@ void ResourceManager::CalculateNormal(D3DXVECTOR3 tangent, D3DXVECTOR3 binormal,
 	return;
 }
 
-void ResourceManager::CalculateModelVectors(std::vector<VertexNormalMap>& verts)
+void ResourceManager::CalculateModelVectors(std::vector<VertexTangent>& verts)
 {
 	int faceCount, index;
-	VertexNormalMap vert[3];
+	VertexTangent vert[3];
 	D3DXVECTOR3 tangent, binormal, normal;
 
-	std::vector<VertexNormalMap> vertices;
+	std::vector<VertexTangent> vertices;
 
 	// Calculate the number of faces in the model.
 	faceCount = verts.size() / 3;
@@ -455,7 +455,7 @@ std::vector<MeshStrip*> ResourceManager::LoadMeshStrips(const char* filePath, Ob
 		D3DXVECTOR3 min = D3DXVECTOR3(99999.9f, 99999.9f, 99999.9f);
 		D3DXVECTOR3 max = -min;
 
-		std::vector<VertexNormalMap> tempVerts;
+		std::vector<VertexTangent> tempVerts;
 		//tempVerts.resize(objData->faces->size() * 3);
 		
 		bool faceMaterialMisMatch = false;
@@ -475,7 +475,7 @@ std::vector<MeshStrip*> ResourceManager::LoadMeshStrips(const char* filePath, Ob
 				D3DXVECTOR3 normal = objData->vertsnorms->at(norm);
 				D3DXVECTOR2 texCoords = objData->textcoords->at(texCoord);
 
-				tempVerts.push_back(VertexNormalMap(vertex, texCoords, normal));
+				tempVerts.push_back(VertexTangent(vertex, texCoords, normal));
 
 				vertPos = fd.data[2][0] - 1;
 				texCoord = fd.data[2][1] - 1;
@@ -485,7 +485,7 @@ std::vector<MeshStrip*> ResourceManager::LoadMeshStrips(const char* filePath, Ob
 				normal = objData->vertsnorms->at(norm);
 				texCoords = objData->textcoords->at(texCoord);
 
-				tempVerts.push_back(VertexNormalMap(vertex, texCoords, normal));
+				tempVerts.push_back(VertexTangent(vertex, texCoords, normal));
 
 				vertPos = fd.data[1][0] - 1;
 				texCoord = fd.data[1][1] - 1;
@@ -495,7 +495,7 @@ std::vector<MeshStrip*> ResourceManager::LoadMeshStrips(const char* filePath, Ob
 				normal = objData->vertsnorms->at(norm);
 				texCoords = objData->textcoords->at(texCoord);
 
-				tempVerts.push_back(VertexNormalMap(vertex, texCoords, normal));
+				tempVerts.push_back(VertexTangent(vertex, texCoords, normal));
 
 				hasFace = true;
 			}
@@ -526,7 +526,7 @@ std::vector<MeshStrip*> ResourceManager::LoadMeshStrips(const char* filePath, Ob
 		}
 		else
 		{
-			std::vector<VertexNormalMap> verts;
+			std::vector<VertexTangent> verts;
 			verts.resize(tempVerts.size());
 
 			for (unsigned int i = 0; i < tempVerts.size(); i++)

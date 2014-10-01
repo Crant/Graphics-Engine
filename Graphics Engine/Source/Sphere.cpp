@@ -30,7 +30,7 @@ void Sphere::Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext, floa
 	this->BuildStack();
 
 	BUFFER_INIT_DESC verticesBuffDesc;
-	verticesBuffDesc.ElementSize = sizeof(VertexNormalMap);
+	verticesBuffDesc.ElementSize = sizeof(VertexTangent);
 	verticesBuffDesc.NumElements = this->zVertices.size();
 	verticesBuffDesc.Type = VERTEX_BUFFER;
 	verticesBuffDesc.Usage = BUFFER_DEFAULT;
@@ -80,7 +80,7 @@ void Sphere::BuildStack()
 		{
 			float theta = j * thetaStep;
 
-			VertexNormalMap v;
+			VertexTangent v;
 
 			// spherical to cartesian
 			v.position.x = mRadius * sinf(phi) * cosf(theta);
@@ -102,12 +102,12 @@ void Sphere::BuildStack()
 	}
 
 	// poles: note that there will be texture coordinate distortion
-	VertexNormalMap vertexTemp = VertexNormalMap(D3DXVECTOR3(0.0f, -mRadius, 0.0f), D3DXVECTOR2(0.0f, 1.0f), D3DXVECTOR3(0.0f, -1.0f, 0.0f));
+	VertexTangent vertexTemp = VertexTangent(D3DXVECTOR3(0.0f, -mRadius, 0.0f), D3DXVECTOR2(0.0f, 1.0f), D3DXVECTOR3(0.0f, -1.0f, 0.0f));
 	vertexTemp.tangent = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
 
 	this->zVertices.push_back( vertexTemp );
 	
-	vertexTemp = VertexNormalMap(D3DXVECTOR3(0.0f,  mRadius, 0.0f), D3DXVECTOR2(0.0f, 0.0f), D3DXVECTOR3(0.0f,  1.0f, 0.0f));
+	vertexTemp = VertexTangent(D3DXVECTOR3(0.0f,  mRadius, 0.0f), D3DXVECTOR2(0.0f, 0.0f), D3DXVECTOR3(0.0f,  1.0f, 0.0f));
 	vertexTemp.tangent = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
 
 	this->zVertices.push_back( vertexTemp );

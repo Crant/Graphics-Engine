@@ -6,14 +6,14 @@
 
 //Avoid circular include
 class Object3D;
-struct VertexNormalMap;
+struct VertexTangent;
 class Material;
 
 class MeshStrip
 {
 private:
 	Object3D* zRenderObject;
-	std::vector<VertexNormalMap> zMesh;
+	std::vector<VertexTangent> zMesh;
 	std::vector<int> zIndicies;
 	//int* indicies;
 	std::string zTexture;
@@ -25,8 +25,8 @@ public:
 	virtual ~MeshStrip();
 	MeshStrip(const MeshStrip* origObj);
 
-	std::vector<VertexNormalMap> GetVerts() const { return this->zMesh; }
-	void SetVerts(std::vector<VertexNormalMap> verts) { this->zMesh = verts; }
+	std::vector<VertexTangent> GetVerts() const { return this->zMesh; }
+	void SetVerts(std::vector<VertexTangent> verts) { this->zMesh = verts; }
 	int GetNrOfVerts() const { return this->zMesh.size(); }
 	std::vector<int> GetIndicies() const { return this->zIndicies; }
 	void SetIndicies(std::vector<int> inds) { this->zIndicies = inds; }

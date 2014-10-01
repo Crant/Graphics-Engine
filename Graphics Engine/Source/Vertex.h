@@ -82,27 +82,57 @@ struct Vertex
 	}
 };
 
-struct VertexNormalMap : public Vertex
+struct VertexTangent : public Vertex
 {
 	D3DXVECTOR3 tangent;
 
-	VertexNormalMap(D3DXVECTOR3 _pos, D3DXVECTOR2 _texCoord, D3DXVECTOR3 _norm, D3DXVECTOR3 _tang) : Vertex(_pos, _texCoord, _norm)
+	VertexTangent(D3DXVECTOR3 _pos, D3DXVECTOR2 _texCoord, D3DXVECTOR3 _norm, D3DXVECTOR3 _tang) : Vertex(_pos, _texCoord, _norm)
 	{
 		tangent = _tang;
 	}
-	VertexNormalMap(D3DXVECTOR3 _pos, D3DXVECTOR2 _texCoord, D3DXVECTOR3 _norm) : Vertex(_pos, _texCoord, _norm)
+	VertexTangent(D3DXVECTOR3 _pos, D3DXVECTOR2 _texCoord, D3DXVECTOR3 _norm) : Vertex(_pos, _texCoord, _norm)
 	{
 		tangent = D3DXVECTOR3(0, 0, 0);
 	}
-	VertexNormalMap() : Vertex()
+	VertexTangent() : Vertex()
 	{
 		tangent = D3DXVECTOR3(0, 0, 0);
 	}
-	VertexNormalMap(const VertexNormalMap* origObj)
+	VertexTangent(const VertexTangent* origObj)
 	{
 		position = origObj->position;
 		texCoord = origObj->texCoord;
 		normal = origObj->normal;
 		tangent = origObj->tangent;
+	}
+};
+
+struct VertexBinormal : public VertexTangent
+{
+	D3DXVECTOR3 binormal;
+
+	VertexBinormal(D3DXVECTOR3 _pos, D3DXVECTOR2 _texCoord, D3DXVECTOR3 _norm, D3DXVECTOR3 _tang, D3DXVECTOR3 _Binorm) : VertexTangent(_pos, _texCoord, _norm, _tang)
+	{
+		binormal = _Binorm;
+	}
+	VertexBinormal(D3DXVECTOR3 _pos, D3DXVECTOR2 _texCoord, D3DXVECTOR3 _norm, D3DXVECTOR3 _tang) : VertexTangent(_pos, _texCoord, _norm, _tang)
+	{
+		binormal = D3DXVECTOR3(0, 0, 0);
+	}
+	VertexBinormal(D3DXVECTOR3 _pos, D3DXVECTOR2 _texCoord, D3DXVECTOR3 _norm) : VertexTangent(_pos, _texCoord, _norm)
+	{
+		binormal = D3DXVECTOR3(0, 0, 0);
+	}
+	VertexBinormal() : VertexTangent()
+	{
+		binormal = D3DXVECTOR3(0, 0, 0);
+	}
+	VertexBinormal(const VertexBinormal* origObj)
+	{
+		position = origObj->position;
+		texCoord = origObj->texCoord;
+		normal = origObj->normal;
+		tangent = origObj->tangent;
+		binormal = origObj->binormal;
 	}
 };

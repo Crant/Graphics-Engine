@@ -24,6 +24,15 @@ Terrain::Terrain(D3DXVECTOR3 position, D3DXVECTOR3 scale, unsigned int size, con
 	this->CreateMesh();
 }
 
+void Terrain::CreateGrid()
+{
+	DWORD numVerts = (this->zSize + 1) *  (this->zSize + 1);
+	DWORD numInd = this->zSize * this->zSize * 2 * 3;
+
+	this->zVertices.resize(numVerts);
+	this->zIndices.resize(numInd);
+}
+
 void Terrain::CreateMesh()
 {
 	unsigned int vertRows = this->zSize - 1;

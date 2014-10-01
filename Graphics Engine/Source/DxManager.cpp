@@ -1015,9 +1015,9 @@ void DxManager::CreateStaticMesh(StaticMesh* mesh)
 				for (auto it_strip = strips.begin(); it_strip != strips.end(); it_strip++)
 				{
 					MeshStrip* strip = (*it_strip);
-					std::vector<VertexNormalMap> tmp = strip->GetVerts();
+					std::vector<VertexTangent> tmp = strip->GetVerts();
 					BUFFER_INIT_DESC bufferDesc;
-					bufferDesc.ElementSize = sizeof(VertexNormalMap);
+					bufferDesc.ElementSize = sizeof(VertexTangent);
 					bufferDesc.InitData = &tmp[0];
 
 					bufferDesc.NumElements = strip->GetNrOfVerts();
@@ -1085,10 +1085,10 @@ void DxManager::CreateSkyBox( std::string texture )
 	SkyBox* sb = new SkyBox(this->zCamera->GetPosition(), 10, 10);
 	MeshStrip* strip = sb->GetStrip();
 
-	std::vector<VertexNormalMap> vertTmp = strip->GetVerts();
+	std::vector<VertexTangent> vertTmp = strip->GetVerts();
 
 	BUFFER_INIT_DESC BufferDesc;
-	BufferDesc.ElementSize = sizeof(VertexNormalMap);
+	BufferDesc.ElementSize = sizeof(VertexTangent);
 	BufferDesc.InitData = &vertTmp[0];
 	BufferDesc.NumElements = strip->GetNrOfVerts();
 	BufferDesc.Type = VERTEX_BUFFER;

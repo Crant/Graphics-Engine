@@ -19,7 +19,7 @@ private:
 	BufferResource* zVertexBufferResource;
 	BufferResource* zIndexBufferResource;
 
-	std::vector<VertexNormalMap> zVertices;
+	std::vector<VertexTangent> zVertices;
 	std::vector<DWORD> zIndices;
 
 public:

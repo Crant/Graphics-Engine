@@ -331,5 +331,8 @@
     <FxCompile Include="..\WorkingDir\Shaders\Water.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="..\WorkingDir\Shaders\DeferredGeometryTerrainTessellation.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
