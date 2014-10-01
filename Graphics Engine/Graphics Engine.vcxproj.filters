@@ -180,11 +180,11 @@
     <ClInclude Include="..\Include\iSpotLight.h">
       <Filter>Wrapper</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Water.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\iWater.h">
+    <ClInclude Include="..\Include\iWaterPlane.h">
       <Filter>Wrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\WaterPlane.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -290,7 +290,7 @@
     <ClCompile Include="Source\SpotLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Water.cpp">
+    <ClCompile Include="Source\WaterPlane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -326,6 +326,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\WorkingDir\Shaders\SpotLight.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\WorkingDir\Shaders\Water.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

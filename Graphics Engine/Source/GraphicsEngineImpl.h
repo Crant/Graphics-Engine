@@ -135,6 +135,12 @@ public:
 	SpotLight* CreateSpotLight(D3DXVECTOR3 pos, D3DXVECTOR3 direction, float intensity, bool enableShadows = false);
 	void DeleteSpotLight(SpotLight* sLight);
 
+	virtual iWaterPlane* CreateWaterPlane(Vector3 pPoints[4]);
+	virtual void DeleteWaterPlane(iWaterPlane* &pPlane);
+
+	WaterPlane* CreateWaterPlane(D3DXVECTOR3 pPoints[4]);
+	void DeleteWaterPlane(WaterPlane* pPlane);
+
 	virtual void ResetPerfLogging();
 	virtual void PrintPerfLogging();
 };

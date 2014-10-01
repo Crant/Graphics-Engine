@@ -44,6 +44,10 @@ void TestProgram::InitResources()
 	//iSpotLight* sLight = this->zEngine->CreateSpotLight(this->zEngine->GetCamera()->GetPosition(), this->zEngine->GetCamera()->GetForward(), 1.0f, true);
 	//sLight->SetColor(Vector3(255.0f, 0.0f, 255.0f));
 
+	Vector3 points[4] = {Vector3(0, 0, 0), Vector3(25.0f, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 25.0f)};
+
+	iWaterPlane* wPlane = this->zGraphicsEngine->CreateWaterPlane(points);
+
 	this->zGraphicsEngine->GetCamera()->SetPosition(Vector3(0, 5, 0));
 	this->zGraphicsEngine->GetCamera()->LookAt(Vector3(10, 0, 0));
 	this->zGraphicsEngine->GetCamera()->SetFollowTerrain(false);

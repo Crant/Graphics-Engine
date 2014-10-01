@@ -59,6 +59,31 @@ void DxManager::HandleTerrainEvent( TerrainEvent* te )
 	}
 }
 
+void DxManager::HandleWaterPlaneEvent(WaterPlaneEvent* wpe)
+{
+	if (wpe->IsAdding())
+	{
+		//wpe->GetWaterPlane()->Init(this->Dx_Device, this->Dx_DeviceContext);
+		this->zWaterPlanes.push_back(wpe->GetWaterPlane());
+	}
+	else
+	{
+		WaterPlane* waterPlane = wpe->GetWaterPlane();
+
+		for(auto it_WaterPlane = this->zWaterPlanes.begin(); it_WaterPlane != this->zWaterPlanes.end(); it_WaterPlane++)
+		{
+			WaterPlane* temp = (*it_WaterPlane);
+			if (temp == waterPlane)
+			{
+				this->zWaterPlanes.erase(it_WaterPlane);
+				delete waterPlane;
+				waterPlane = NULL;
+				return;
+			}
+		}
+	}
+}
+
 void DxManager::HandleImageEvent( ImageEvent* iev )
 {
 	if(iev->IsAdding())

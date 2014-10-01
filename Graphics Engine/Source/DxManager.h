@@ -12,6 +12,7 @@
 #include "GameTimer.h"
 #include "Object3D.h"
 #include "SkyBox.h"
+#include "WaterPlane.h"
 #include "QuadRenderer.h"
 #include "PointLight.h"
 
@@ -26,6 +27,7 @@ class ImageEvent;
 class TextEvent;
 class PointLightEvent;
 class SpotLightEvent;
+class WaterPlaneEvent;
 
 #if defined(DEBUG) || defined(_DEBUG)
 	#include <vld.h>
@@ -62,6 +64,7 @@ private:
 	Shader* zShader_CubeShadowMap;
 	Shader* zShader_ShadowMap;
 	Shader* zShader_DebugCubeMapSRV;
+	Shader* zShader_Water;
 
 	std::vector<Terrain*> zTerrains;
 	std::vector<Image*> zImages;
@@ -69,6 +72,7 @@ private:
 	std::vector<Text*> zTexts;
 	std::vector<PointLight*> zPointLights;
 	std::vector<SpotLight*> zSpotLights;
+	std::vector<WaterPlane*> zWaterPlanes;
 
 	// Standard stuff
 	ID3D11Device* Dx_Device;
@@ -127,6 +131,7 @@ private:
 	void RenderFinalImage();
 	/*! Render Terrain.*/
 	void RenderTerrain();
+	void RenderTessellatedTerrain();
 	/*! Render Lights.*/
 	void RenderPointLights();
 	void RenderSpotLights();
@@ -135,10 +140,13 @@ private:
 	void CreateShadowMapsSinglePass();
 	/*! Render RenderTargets.*/
 	void DebugRenderTargets();
+	/*!Render Water planes.*/
+	void RenderWaterPlanes();
 
 	/*! Event Handling functions.*/
 	void HandleStaticMeshEvent(StaticMeshEvent* sme);
 	void HandleTerrainEvent(TerrainEvent* te);
+	void HandleWaterPlaneEvent(WaterPlaneEvent* wpe);
 	void HandleSkyBoxEvent(SkyBoxEvent* sbe);
 	void HandleImageEvent(ImageEvent* iev);
 	void HandleTextEvent(TextEvent* te);
@@ -162,20 +170,22 @@ public:
 	int GetMinFPS() const;
 	int GetMaxFPS() const;
 
-	void CreateTerrain(Terrain* terrain); 
-	void CreateStaticMesh(StaticMesh* mesh);
+	void CreateTerrain(Terrain* pTerrain); 
+	void CreateStaticMesh(StaticMesh* pMesh);
 	void CreateSkyBox(std::string texture);
 	void CreateImage(Image* img, std::string texture);
 	void CreateText(Text* text, string font);
 	void CreatePointLight(PointLight* pLight);
-	void CreateSpotLight(SpotLight* sLight);
+	void CreateSpotLight(SpotLight* pLight);
+	void CreateWaterPlane(WaterPlane* pPlane);
 
-	void DeleteStaticMesh(StaticMesh* mesh);
-	void DeleteTerrain(Terrain* terrain);
+	void DeleteStaticMesh(StaticMesh* pMesh);
+	void DeleteTerrain(Terrain* pTerrain);
 	void DeleteImage(Image* img);
 	void DeleteText(Text* text);
 	void DeletePointLight(PointLight* pLight);
-	void DeleteSpotLight(SpotLight* sLight);
+	void DeleteSpotLight(SpotLight* pLight);
+	void DeleteWaterPlane(WaterPlane* pPlane);
 
 	void ResetPerfLogging();
 	void PrintPerfLogging();

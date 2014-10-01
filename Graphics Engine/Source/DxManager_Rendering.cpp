@@ -39,6 +39,7 @@ void DxManager::Render()
 #endif
 
 	this->RenderTerrain();
+	this->RenderTessellatedTerrain();
 
 #ifdef PERFORMANCE_TEST
 	this->zPerf.PostMeasure("Renderer - Render Deferred Geo Terrain", 2);
@@ -86,6 +87,16 @@ void DxManager::Render()
 
 #ifdef PERFORMANCE_TEST
 	this->zPerf.PostMeasure("Renderer - Render Combined Image", 2);
+#endif
+
+#ifdef PERFORMANCE_TEST
+	this->zPerf.PreMeasure("Renderer - Render Water Planes", 2);
+#endif
+
+	//this->RenderWaterPlanes();
+
+#ifdef PERFORMANCE_TEST
+	this->zPerf.PostMeasure("Renderer - Render Water Planes", 2);
 #endif
 
 #ifdef PERFORMANCE_TEST
@@ -272,6 +283,12 @@ void DxManager::RenderTerrain()
 		this->Dx_DeviceContext->DrawIndexed(numElements, 0, 0);
 	}
 }
+
+void DxManager::RenderTessellatedTerrain()
+{
+
+}
+
 
 void DxManager::CreateShadowMapsMultiPass()
 {
@@ -602,8 +619,36 @@ void DxManager::RenderSpotLights()
 	}
 }
 
+
+void DxManager::RenderWaterPlanes()
+{
+	this->Dx_DeviceContext->OMSetRenderTargets(1, &this->Dx_RenderTargetView, this->Dx_DepthStencilView);
+
+	this->zShader_Water->SetResource("tNormalMap", this->Dx_GBufferSRV[NORMAL]);
+	this->zShader_Water->SetResource("tDepthMap", this->Dx_GBufferSRV[DEPTH]);
+
+	this->zShader_Water->SetResource("tFinalScene", this->Dx_GBufferSRV[FINAL]);
+
+	this->zShader_Water->SetFloat3("gCameraPos", this->zCamera->GetPositionD3D());
+
+	D3DXMATRIX mInverseViewProj;
+	D3DXMatrixInverse(&mInverseViewProj, 0, &this->zCamera->GetViewProjMatrix());
+	this->zShader_Water->SetMatrix("mInverseViewProj", mInverseViewProj);
+
+	for(auto it_Plane = this->zWaterPlanes.begin(); it_Plane != this->zWaterPlanes.end(); it_Plane++)
+	{
+		
+
+		this->zShader_Water->Apply(0);
+
+		this->zQuadRenderer->Draw();
+	}
+}
+
+
 void DxManager::RenderFinalImage()
 {
+	//this->Dx_DeviceContext->OMSetRenderTargets(1, &this->Dx_GBufferRTV[FINAL], this->Dx_DepthStencilView);
 	this->Dx_DeviceContext->OMSetRenderTargets(1, &this->Dx_RenderTargetView, this->Dx_DepthStencilView);
 
 	this->zShader_Final->SetResource("tColorMap", this->Dx_GBufferSRV[COLOR]);

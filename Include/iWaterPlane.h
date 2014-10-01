@@ -10,11 +10,11 @@
 
 extern "C"
 {
-	class DECLDIR iWater
+	class DECLDIR iWaterPlane
 	{	
 	public:
-		iWater() {};
-		virtual ~iWater() {};
+		iWaterPlane() {};
+		virtual ~iWaterPlane() {};
 
 	};
 }

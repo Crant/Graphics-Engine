@@ -9,7 +9,7 @@ private:
 
 	iMesh* zMesh;
 	iTerrain* zTerrain;
-	iWater* zWater;
+	iWaterPlane* zWater;
 	iPointLight* zPointLight;
 
 	bool zFollowTerrain;

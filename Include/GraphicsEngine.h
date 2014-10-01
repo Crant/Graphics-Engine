@@ -14,7 +14,7 @@
 #include <iMesh.h>
 #include <iKeyListener.h>
 #include <iTerrain.h>
-#include <iWater.h>
+#include <iWaterPlane.h>
 #include <iText.h>
 #include <iImage.h>
 #include <iPointLight.h>
@@ -76,7 +76,12 @@ extern "C"
 
 		virtual iSpotLight* CreateSpotLight(Vector3 pos, Vector3 direction, float intensity, bool enableShadows = false) = 0;
 		virtual void DeleteSpotLight(iSpotLight* &sLight) = 0;
-
+		/*!
+		pPlanes is the water planes corners
+		[0] - x min, [1] - x max, [2] - z min, [3] - z max
+		*/
+		virtual iWaterPlane* CreateWaterPlane(Vector3 pPoints[4]) = 0;
+		virtual void DeleteWaterPlane(iWaterPlane* &pPoints) = 0;
 
 	};
 

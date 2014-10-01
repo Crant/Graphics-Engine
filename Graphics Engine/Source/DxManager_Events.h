@@ -65,6 +65,27 @@ public:
 	Terrain* GetTerrain() { this->deleteSelf = false; return this->terrain; }
 };
 
+class WaterPlaneEvent : public RendererEvent
+{
+private:
+	WaterPlane* waterPlane;
+
+public:
+	WaterPlaneEvent(bool adding, WaterPlane* terrain) : RendererEvent(adding)
+	{
+		this->waterPlane = terrain;
+	}
+	virtual ~WaterPlaneEvent() 
+	{
+		if(this->deleteSelf && this->Adding)
+		{
+			if(this->waterPlane) delete this->waterPlane; this->waterPlane = NULL;
+		}
+	}
+
+	WaterPlane* GetWaterPlane() { this->deleteSelf = false; return this->waterPlane; }
+};
+
 class SkyBoxEvent : public RendererEvent
 {
 private:
@@ -168,3 +189,4 @@ public:
 	}
 	SpotLight* GetLight() { this->deleteSelf = false; return this->pLight; }
 };
+

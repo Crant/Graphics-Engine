@@ -412,13 +412,25 @@ HRESULT DxManager::InitShaders()
 	//For ShadowMap Debugging
 	this->zShader_DebugCubeMapSRV = new Shader();
 	if (FAILED(this->zShader_DebugCubeMapSRV->Init(this->Dx_Device, this->Dx_DeviceContext, "Shaders/ShadowMapDebug.fx", 
-		inputDescVertexTex3, sizeof(inputDescVertexTex3) / sizeof(D3D11_INPUT_ELEMENT_DESC))))
+		inputDescVertexTex3, sizeof(inputDescVertexTex) / sizeof(D3D11_INPUT_ELEMENT_DESC))))
 	{
 		throw(ShaderException(
 			__FILE__, 
 			__LINE__, 
 			__FUNCTION__, 
 			"Failed to create fx file Shaders/ShadowMapDebug.fx"));
+	}
+
+	//For Water
+	this->zShader_Water = new Shader();
+	if (FAILED(this->zShader_Water->Init(this->Dx_Device, this->Dx_DeviceContext, "Shaders/Water.fx", 
+		inputDescVertexTex3, sizeof(inputDescVertexTex3) / sizeof(D3D11_INPUT_ELEMENT_DESC))))
+	{
+		throw(ShaderException(
+			__FILE__, 
+			__LINE__, 
+			__FUNCTION__, 
+			"Failed to create fx file Shaders/Water.fx"));
 	}
 
 	return S_OK;
@@ -732,6 +744,14 @@ DxManager::~DxManager()
 	}
 	this->zTerrains.clear();
 
+	for (auto it = this->zWaterPlanes.begin(); it != this->zWaterPlanes.end(); it++)
+	{
+		WaterPlane* tmp = (*it);
+		if (tmp)
+			delete tmp;
+	}
+	this->zWaterPlanes.clear();
+
 	for (auto it = this->zImages.begin(); it != this->zImages.end(); it++)
 	{
 		Image* obj = (*it);
@@ -783,6 +803,7 @@ DxManager::~DxManager()
 	SAFE_DELETE(this->zShader_Text);
 	SAFE_DELETE(this->zShader_Image);
 	SAFE_DELETE(this->zShader_Final);
+	SAFE_DELETE(this->zShader_Water);
 	SAFE_DELETE(this->zShader_SkyBox);
 	SAFE_DELETE(this->zShader_SRV_Debug);
 	SAFE_DELETE(this->zShader_ShadowMap);
@@ -885,6 +906,11 @@ void DxManager::Life()
 			else if(TerrainEvent* TEV = dynamic_cast<TerrainEvent*>(ev))
 			{
 				this->HandleTerrainEvent(TEV);
+			}
+			//TerrainEvent
+			else if(WaterPlaneEvent* WEV = dynamic_cast<WaterPlaneEvent*>(ev))
+			{
+				this->HandleWaterPlaneEvent(WEV);
 			}
 			//SkyBoxEvent
 			else if (SkyBoxEvent* SBE = dynamic_cast<SkyBoxEvent*>(ev))
@@ -1219,4 +1245,16 @@ void DxManager::DeleteSpotLight( SpotLight* sLight )
 {
 	SpotLightEvent* le = new SpotLightEvent(false, sLight);
 	this->PutEvent(le);
+}
+
+void DxManager::CreateWaterPlane( WaterPlane* pPlane )
+{
+	WaterPlaneEvent* we = new WaterPlaneEvent(true, pPlane);
+	this->PutEvent(we);
+}
+
+void DxManager::DeleteWaterPlane( WaterPlane* pPlane )
+{
+	WaterPlaneEvent* we = new WaterPlaneEvent(false, pPlane);
+	this->PutEvent(we);
 }

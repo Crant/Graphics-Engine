@@ -696,3 +696,27 @@ void GraphicsEngineImpl::DeleteSpotLight( iSpotLight* &sLight )
 	this->DeleteSpotLight(dynamic_cast<SpotLight*>(sLight));
 	sLight = NULL;
 }
+
+iWaterPlane* GraphicsEngineImpl::CreateWaterPlane( Vector3 pPoints[4] )
+{
+	D3DXVECTOR3 points[4] = {pPoints[0], pPoints[1], pPoints[2], pPoints[3]};
+	return this->CreateWaterPlane(points);
+}
+
+WaterPlane* GraphicsEngineImpl::CreateWaterPlane( D3DXVECTOR3 pPoints[4] )
+{
+	WaterPlane* waterPlane = new WaterPlane(pPoints);
+	this->dx->CreateWaterPlane(waterPlane);
+	return waterPlane;
+}
+
+void GraphicsEngineImpl::DeleteWaterPlane( iWaterPlane* &pPlane )
+{
+	this->DeleteWaterPlane(dynamic_cast<WaterPlane*>(pPlane));
+	pPlane = NULL;
+}
+
+void GraphicsEngineImpl::DeleteWaterPlane( WaterPlane* pPlane )
+{
+
+}
